@@ -5,6 +5,8 @@ from modules.player import *
 from modules.platform import *
 from os import path
 from utils import Spritesheet
+from parts.part1 import Part1
+from parts.part2 import Part2
 
 
 
@@ -18,55 +20,78 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
+
+        self.check_point_hit = 0
+        self.not_passed = True  # Initialize not_passed at class level
         self.load_data()
+
+        self.parts = [Part1(self),Part2(self)]
     def new(self):
 
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group()
         self.portals = pg.sprite.Group()
+        self.grounds = pg.sprite.Group()
+        self.check_points = pg.sprite.Group()
 
         self.player = Player(self)
-        self.p1()
         self.all_sprites.add(self.player)
+        pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
-    def p1(self):
-        
-        self.ground =  Platform(0, WIN_HEIGHT-60, WIN_WIDTH*2, 60, "black")
-        self.portal = Platform(WIN_WIDTH-50, WIN_HEIGHT-500 -60, 50, 500, "green")
 
-        self.all_sprites.add(self.ground)
-        self.platforms.add(self.ground)
-        self.portals.add(self.portal)
-        self.all_sprites.add(self.portal)
     def load_data(self):
         self.dir = path.dirname(__file__)
         img_dir = path.join(self.dir, "images")
-        self.spritesheet = Spritesheet(path.join(img_dir, SPRITESHEET))
+        self.spritesheet_char = Spritesheet(path.join(img_dir, SPRITESHEET_CHAR))
+        self.spritesheet_platform = Spritesheet(path.join(img_dir, SPRITESHEET_PLATFORM))
+        self.spritesheet_items = Spritesheet(path.join(img_dir, SPRITESHEET_ITEMS))
+        self.snd_dir = path.join(self.dir, "sounds")
+        self.jump_sound = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav"))
+
 
     def run(self):
+        pg.mixer.music.play(loops=-1)
         self.playing = True
         while self.playing:
             self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
+        pg.mixer.music.fadeout(500)
             
     def update(self):
+        self.scroll_items = list(self.platforms) + list(self.portals) + list(self.check_points)
+        not_passed = True
+        if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
+            self.show_over_screen()
         self.all_sprites.update()
-        if self.player.rect.y > 0:
-            hits = pg.sprite.spritecollide(self.player, self.platforms, False)
-            if hits:
-                self.player.pos.y = hits[0].rect.top
-                self.player.vel.y = 0
-       
-        if self.player.rect.right >= WIN_WIDTH-100:
+        self.scroll_page()        
+    def scroll_page(self):
+        if self.player.rect.right >= WIN_WIDTH-300:
             self.player.pos.x -= abs(self.player.vel.x)
-            for p in list(self.platforms) + list(self.portals):
+            for p in self.scroll_items:
                 p.rect.x -= abs(self.player.vel.x)
-        if self.player.rect.left <= 100:
+        if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x > 0:
             self.player.pos.x += (abs(self.player.vel.x))
-            for p in list(self.platforms) + list(self.portals):
+            for p in self.scroll_items:
                 p.rect.x += abs(self.player.vel.x)
+    def move_screen(self, screen_width):
+        self.check_point_hit = pg.time.get_ticks()
+        print("move screen")
+        if self.screen.get_width() - self.player.pos.x < screen_width:
+            #self.info_screen()
+            self.player.vel.x = 0
+            self.player.pos.x -= SCREEN_SCROLL_SPEED
+            for p in self.scroll_items:
+                p.rect.x -= SCREEN_SCROLL_SPEED
+                #self.info_screen()
+        else:
+             for el in self.check_points:
+                el.rect.x = - self.player.pos.x - 150
+             self.info_screen()
+             
+             
+        
             
     def events(self):
         for event in pg.event.get():
@@ -78,16 +103,38 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
+                    #self.jump_sound.play()
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_SPACE:
+                    self.player.jump_cut()
+            
 
             
 
     def draw(self):
         self.screen.fill("light blue")
-        self.player.draw()
+        self.player.draw_healthbar()
+        for part in self.parts:
+                part.add_items()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 
         pg.display.flip()
+    def info_screen(self):
+        self.screen.fill("light blue")
+        self.draw_text(
+            "Mål: Kom deg til andre side uten å bli truffet eller treffe vannet",
+            40,
+            "white",
+            WIN_WIDTH//2,
+            WIN_HEIGHT//2
+        )
+
+        pg.display.flip()
+        pg.mixer.music.fadeout(500)
+        self.wait_for_key()
+        pg.mixer.music.load(path.join(self.snd_dir, "part4.ogg"))
+        pg.mixer.music.play(loops=-1)
     def show_start_screen(self):
         self.screen.fill("dark blue")
         self.draw_text(
@@ -115,6 +162,7 @@ class Game:
         pg.display.flip()
         self.wait_for_key()
     def show_over_screen(self):
+        sys.exit()
         self.screen.fill("dark blue")
         self.draw_text(
             "Opplev 2.verdenskrig som en soldat",
