@@ -16,6 +16,8 @@ class Game:
         pg.init()
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+        self.v = pg.image.load(os.path.join("images", "background0.png")).convert()
+        self.BG = pg.transform.scale(self.v, (WIN_WIDTH, WIN_HEIGHT))
         self.clock = pg.time.Clock()
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
@@ -123,12 +125,12 @@ class Game:
             
 
     def draw(self):
-        self.screen.fill("light blue")
+        self.screen.blit(self.BG, (0,0))
         self.player.draw_healthbar()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 
-        pg.display.flip()
+        pg.display.update()
     def info_screen(self):
         self.screen.fill("light blue")
         self.draw_text(

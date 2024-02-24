@@ -48,7 +48,7 @@ class Part2:
     def move_portal_down(self):
         for item in self.game.portals:
             if not self.portal_closed:
-                item.rect.y += 2
+                item.rect.y += 0.8
         self.check_portal_closed()
    
     
@@ -57,7 +57,6 @@ class Part2:
             if isinstance(plat,MovingJumpPlatform):
                 plat.horizontal_movement()
                 if self.game.player.on_moving_plat:
-                    print("on moving plat")
                     player = self.game.player 
                     player.rect.x += plat.direction
             
@@ -83,7 +82,7 @@ class Part2:
     def update(self):
         self.move_plat()
         self.move_portal_down()
-        self.create_enemies()
+        #self.create_enemies()
 
         
            

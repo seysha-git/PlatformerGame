@@ -82,8 +82,14 @@ class MovingJumpPlatform(JumpPlatform):
         super().__init__(game, x, y)
         self.time = time
         self.direction = 1
+        self.pow = None
+        if rd.randrange(3) < POWER_COUNT:
+            self.pow = Pow(self.game, self)
+            self.curr += 1
     def horizontal_movement(self):
         self.rect.x += self.direction
+        if self.pow != None:
+            self.pow.rect.centerx = self.rect.centerx
         now = pg.time.get_ticks()
         if (now - self.time) // 1000 >= 3:
             self.direction *= -1

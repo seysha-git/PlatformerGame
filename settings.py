@@ -1,8 +1,10 @@
 import pygame as pg
+import os
 
 
 WIN_WIDTH = 1400
 WIN_HEIGHT = 800
+
 
 
 TITLE = "WW2 Story gmae"
