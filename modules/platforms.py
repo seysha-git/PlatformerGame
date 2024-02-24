@@ -50,8 +50,6 @@ class BackgroundPlatform(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
-
 class PortalPlatform(pg.sprite.Sprite):
     def __init__(self, game,x,y):
         self._layer = PLATFORM_LAYER
@@ -64,7 +62,6 @@ class PortalPlatform(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 class JumpPlatform(pg.sprite.Sprite):
-    
     curr = 0
     def __init__(self, game,x,y):
         self._layer = PLATFORM_LAYER
@@ -79,4 +76,22 @@ class JumpPlatform(pg.sprite.Sprite):
         if rd.randrange(3) < POWER_COUNT:
             Pow(self.game, self)
             self.curr += 1
+
+class MovingJumpPlatform(JumpPlatform):
+    def __init__(self, game, x, y, time):
+        super().__init__(game, x, y)
+        self.time = time
+        self.direction = 1
+    def horizontal_movement(self):
+        self.rect.x += self.direction
+        now = pg.time.get_ticks()
+        if (now - self.time) // 1000 >= 3:
+            self.direction *= -1
+            self.time = now
+                
+        
+        
+
+
+
 

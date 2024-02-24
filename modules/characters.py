@@ -1,5 +1,6 @@
 import pygame as pg
 from settings import *
+from modules.platforms import MovingJumpPlatform
 import random as rd
 vec = pg.math.Vector2
 
@@ -12,6 +13,7 @@ class Player(pg.sprite.Sprite):
         self.walking = False 
         self.jumping = False 
         self.not_hit_portal = True
+        self.on_moving_plat = False
 
         self.current_frame = 0
         self.last_update = 0
@@ -75,6 +77,8 @@ class Player(pg.sprite.Sprite):
         self.enemies_collision()
         self.move()
         self.check_alive()
+        if pg.sprite.spritecollide(self, self.game.portals, False):
+            self.pos.x -= 70
         self.acc.x += self.vel.x * -MAIN_FRICTION
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
@@ -100,10 +104,13 @@ class Player(pg.sprite.Sprite):
             for hit in jump_plat_hit:
                 if hit.rect.bottom > lowest.rect.bottom:
                     lowest = jump_plat_hit
+                if isinstance(hit,MovingJumpPlatform):
+                    self.on_moving_plat = True
             if self.pos.y < lowest.rect.centery:
                 self.pos.y = lowest.rect.top
                 self.vel.y = 0
                 self.jumping = False
+
 
     def powerup_collision(self):
         pow_hits = pg.sprite.spritecollide(self, self.game.powerups, True)
@@ -171,7 +178,7 @@ class EnemyFly(pg.sprite.Sprite):
         self.image_down.set_colorkey("black")
         self.image = self.image_up
         self.rect = self.image.get_rect()
-        self.rect.centerx = rd.randint(WIN_WIDTH//2 + 100, WIN_WIDTH//2 + 600)
+        self.rect.centerx = rd.randint(WIN_WIDTH//2 + 300, WIN_WIDTH//2 + 400)
         self.rect.centery = rd.randint(WIN_HEIGHT, WIN_HEIGHT+50)
         self.vy = rd.randrange(2,4)
 
