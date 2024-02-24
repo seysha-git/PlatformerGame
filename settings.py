@@ -4,6 +4,7 @@ import pygame as pg
 WIN_WIDTH = 1400
 WIN_HEIGHT = 800
 
+
 TITLE = "WW2 Story gmae"
 FONT_NAME = 'arial'
 
@@ -14,7 +15,14 @@ SPRITESHEET_ENEMIES = "enemies_spritesheet.png"
 
 SCREEN_SCROLL_SPEED = 10
 
+BOOST_POWER = 60
+POWER_COUNT = 1
 
+
+PLAYER_LAYER = 2
+PLATFORM_LAYER = 1
+POW_LAYER = 1
+ENEMIES_LAYER = 2
 
 
 

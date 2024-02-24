@@ -1,7 +1,7 @@
 import pygame as pg
 import sys
 from settings import *
-from modules import *
+from modules.characters import *
 from os import path
 from utils import Spritesheet
 from parts.part1 import Part1
@@ -26,9 +26,13 @@ class Game:
 
         self.parts = [Part1(self), Part2(self)]
     def new(self):
+        
+        self.all_sprites = pg.sprite.LayeredUpdates()
 
-        self.all_sprites = pg.sprite.Group()
-        self.platforms = pg.sprite.Group()
+        self.ground_platforms = pg.sprite.Group()
+        self.jump_platforms = pg.sprite.Group()
+        self.background_sprites = pg.sprite.Group()
+
         self.powerups = pg.sprite.Group()
         self.portals = pg.sprite.Group()
         self.grounds = pg.sprite.Group()
@@ -38,7 +42,6 @@ class Game:
 
         for part in self.parts:
             part.new()
-            part.update()
         
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
@@ -52,6 +55,7 @@ class Game:
         self.spritesheet_enemies = Spritesheet(path.join(img_dir, SPRITESHEET_ENEMIES))
         self.snd_dir = path.join(self.dir, "sounds")
         self.jump_sound = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav"))
+        self.gems_sound = pg.mixer.Sound(path.join(self.snd_dir, "boost.wav"))
 
     def run(self):
         #pg.mixer.music.play(loops=-1)
@@ -65,11 +69,16 @@ class Game:
             
     def update(self):
         self.player.not_hit_portal = True
-        self.scroll_items = list(self.platforms) + list(self.portals) + list(self.check_points)
+        self.scroll_items = list(self.ground_platforms) \
+            + list(self.jump_platforms) + list(self.background_sprites) \
+            + list(self.portals) + list(self.check_points) + list(self.enemies)\
+            + list(self.powerups)
         
         
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
             self.show_over_screen()
+        for part in self.parts:
+            part.update()
         self.all_sprites.update()
         self.scroll_page()        
     def scroll_page(self):
