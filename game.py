@@ -6,6 +6,7 @@ from os import path
 from utils import Spritesheet
 from parts.part1 import Part1
 from parts.part2 import Part2
+from modules.menu import Button
 pg.font.init()
 
 
@@ -181,18 +182,21 @@ class Game:
         #pg.mixer.music.load(path.join(self.snd_dir, "part4.ogg"))
         #pg.mixer.music.play(loops=-1)
     def show_start_screen(self):
-        #self.screen.fill("dark blue")
-        ...
-        """
-        self.draw_text(
-            "Prøv å spill min platformer",
-            40,
-            "white",
-            WIN_WIDTH//4,
-            200
-        )
-        """
-        
+        self.screen.fill("light green")
+        self.draw_text("Mitt Platform spill", 100, "white",200,180)
+        self.play_button = Button(self.screen, "Spill nå", 200, 50, (200,400))
+        self.settings_button = Button(self.screen, "Instillinger", 200, 50, (200,500))
+        self.quit_button = Button(self.screen, "Avslutt", 200, 50, (200,600))
+        self.draw_text(GAME_DESCRIPTION_1, 30, "white", 600,400)
+        self.draw_text(GAME_DESCRIPTION_2, 30, "white", 600,450)
+        self.draw_text(GAME_DESCRIPTION_3, 30, "white", 600,500)
+        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,550)
+        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,600)
+
+        self.play_button.draw()
+        self.settings_button.draw()
+        self.quit_button.draw()
+
         pg.display.flip()
         self.wait_for_key()
     def show_over_screen(self):
@@ -204,12 +208,13 @@ class Game:
         waiting = True
         while waiting:
             self.clock.tick(60)
+            self.play_button.check_click()
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     waiting = False 
                     self.running = False 
-                if event.type == pg.KEYUP:
-                    waiting = False
+            if self.play_button.pressed:
+                waiting = False
     def show_go_screen(self):
         ...
     def draw_text(self, text, size, color, x, y):

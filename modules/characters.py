@@ -109,6 +109,7 @@ class Player(pg.sprite.Sprite):
                     lowest = jump_plat_hit
                 if isinstance(hit,MovingJumpPlatform):
                     self.on_moving_plat = True
+                    self.pos.x=  hit.rect.centerx
             if self.pos.x < lowest.rect.right + 10 \
                 and self.pos.x > lowest.rect.left - 10:
                     if self.pos.y < lowest.rect.centery:
@@ -182,7 +183,7 @@ class EnemyFly(pg.sprite.Sprite):
         self.image_down.set_colorkey("black")
         self.image = self.image_up
         self.rect = self.image.get_rect()
-        self.rect.centerx = rd.randint(WIN_WIDTH//2 + 300, WIN_WIDTH//2 + 400)
+        self.rect.centerx = rd.randint(WIN_WIDTH//2, WIN_WIDTH)
         self.rect.centery = rd.randint(WIN_HEIGHT, WIN_HEIGHT+50)
         self.vy = rd.randrange(2,4)
         self.rect.y = 600

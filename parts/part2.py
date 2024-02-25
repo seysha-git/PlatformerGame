@@ -14,11 +14,11 @@ class Part2:
         self.portal_closed = False
         self.vel = 1
         self.jump_platform_cordinates = [
-            (1200,600),
-            (1300, 400),
-            (1500,188),
-            (1400,100),
-            (1600,530),
+            (1000,600),
+            (900, 400),
+            (1100,188),
+            (1200,100),
+            (1300,530),
 
         ]
     
@@ -32,9 +32,9 @@ class Part2:
         self.enemies_timer = 0 
         self.platform_timer = 0
         for i in range(1,20):
-            GroundPlatform(self.game, 1850 + 50 + i*70, WIN_HEIGHT//2)
+            GroundPlatform(self.game, 1500 + 50 + i*70, WIN_HEIGHT//2)
         for i in range(1,10):
-            PortalPlatform(self.game, 2100,70*i- 1000)
+            PortalPlatform(self.game, 1600,70*i- 1000)
         for pos in self.jump_platform_cordinates:
             rand = rd.randint(0,1)
             if rand:
