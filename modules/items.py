@@ -17,6 +17,7 @@ class Pow(pg.sprite.Sprite):
 
     def update(self):
         self.rect.bottom = self.plat.rect.top - 5
+        self.rect.centerx = self.plat.rect.centerx
         if not self.game.jump_platforms.has(self.plat):
             self.kill()
 

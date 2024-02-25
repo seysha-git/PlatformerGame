@@ -37,7 +37,7 @@ class Player(pg.sprite.Sprite):
             frame.set_colorkey("black")
         self.walk_frames_r = [
             self.game.spritesheet_char.get_image(0, 0, 72, 97),
-            self.game.spritesheet_char.get_image(73, 0, 72, 97),
+            self.game.spritesheet_char.get_image(146, 0, 72, 97),
         ]
 
         self.walk_frames_l = []
@@ -45,8 +45,11 @@ class Player(pg.sprite.Sprite):
             frame.set_colorkey("black")
             self.walk_frames_l.append(pg.transform.flip(frame, True, False))
             
-        self.jump_frame = self.game.spritesheet_char.get_image(438,93,67,94)
-        self.jump_frame.set_colorkey("black")
+        self.jump_frame = [
+            self.game.spritesheet_char.get_image(438,93,67,94),
+            self.game.spritesheet_char.get_image(438, 0, 69, 92),
+        ]
+        self.jump_frame[0].set_colorkey("black")
 
     def jump(self):
         self.rect.x += 1
@@ -106,10 +109,14 @@ class Player(pg.sprite.Sprite):
                     lowest = jump_plat_hit
                 if isinstance(hit,MovingJumpPlatform):
                     self.on_moving_plat = True
-            if self.pos.y < lowest.rect.centery:
-                self.pos.y = lowest.rect.top
-                self.vel.y = 0
-                self.jumping = False
+            if self.pos.x < lowest.rect.right + 10 \
+                and self.pos.x > lowest.rect.left - 10:
+                    if self.pos.y < lowest.rect.centery:
+                        self.pos.y = lowest.rect.top
+                        self.vel.y = 0
+                        self.jumping = False
+                
+            
 
 
     def powerup_collision(self):
@@ -121,18 +128,15 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,MAIN_GRAVITY)
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
-            a = False
-            for portal in self.game.portals:
-                if self.collision_rect.colliderect(portal.rect):
-                    a = True
-            if a == False:
-                self.acc.x = MAIN_ACC
+            self.acc.x = MAIN_ACC
         if keys[pg.K_a]:
             self.acc.x = -MAIN_ACC
 
             
     def animate(self):
         now = pg.time.get_ticks()
+        if self.jumping:
+            self.image = self.jump_frame[0]
         if self.vel.x !=0:
             self.walking = True 
         else:
@@ -181,13 +185,10 @@ class EnemyFly(pg.sprite.Sprite):
         self.rect.centerx = rd.randint(WIN_WIDTH//2 + 300, WIN_WIDTH//2 + 400)
         self.rect.centery = rd.randint(WIN_HEIGHT, WIN_HEIGHT+50)
         self.vy = rd.randrange(2,4)
-
-        #if self.rect.centery > WIN_HEIGHT:
-         #   self.vy *= -1
         self.rect.y = 600
-        #self.vx = 0
-        self.dx = 0.5
 
     def update(self):
         self.rect.y -= self.vy 
         self.mask = pg.mask.from_surface(self.image)
+        if self.rect.top > WIN_HEIGHT + 100:
+            self.kill()

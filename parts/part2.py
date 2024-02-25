@@ -82,7 +82,7 @@ class Part2:
     def update(self):
         self.move_plat()
         self.move_portal_down()
-        #self.create_enemies()
+        self.create_enemies()
 
         
            

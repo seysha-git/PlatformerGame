@@ -6,6 +6,7 @@ from os import path
 from utils import Spritesheet
 from parts.part1 import Part1
 from parts.part2 import Part2
+pg.font.init()
 
 
 
@@ -21,6 +22,20 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
+        self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 24)
+
+        self.snip = self.scrolling_text_font.render('', True, 'white')
+        self.messages = [
+            "Test 1",
+            "test 2", 
+            "test 3"
+        ]
+        self.active_message = 0
+        self.message =self.messages[self.active_message]
+        self.counter = 0
+        self.speed = 3
+        self.done = False
+
 
         self.check_point_hit = 0
         self.not_passed = True  # Initialize not_passed at class level
@@ -106,8 +121,19 @@ class Game:
              for el in self.check_points:
                 el.rect.x = - self.player.pos.x - 150
              self.info_screen()
-            
+    def create_animated_text(self):
+        if self.active_message <2:
+            if self.counter < self.speed * len(self.message):
+                self.counter += 1
+            elif self.counter >= self.speed* len(self.message):
+                self.done = True
+    def draw_animated_text(self):
+        if self.active_message < 2:
+            pg.draw.ellipse(self.screen, "light green", (190,190,300,100))
+            self.screen.blit(self.snip, (320,220))
     def events(self):
+        self.create_animated_text()
+        #self.draw_scrolling_text("Prøv å spill min platformer")
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
@@ -116,25 +142,34 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
-                    #self.jump_sound.play()
+                print(self.done, self.active_message)
+                if event.key == pg.K_RETURN and self.done and self.active_message < len(self.messages)-1:
+                    print("create new")
+                    self.active_message += 1
+                    self.done = False
+                    self.message = self.messages[self.active_message]
+                    self.counter = 0
+                
             if event.type == pg.KEYUP:
                 if event.key == pg.K_SPACE:
                     self.player.jump_cut()
-            
 
+        self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "black")
             
 
     def draw(self):
         self.screen.blit(self.BG, (0,0))
+        self.draw_animated_text()
         self.player.draw_healthbar()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 
         pg.display.update()
     def info_screen(self):
+        message = "Mål: Kom deg til andre side uten å bli truffet eller treffe vannet"
         self.screen.fill("light blue")
         self.draw_text(
-            "Mål: Kom deg til andre side uten å bli truffet eller treffe vannet",
+            message,
             40,
             "white",
             200,
@@ -146,29 +181,18 @@ class Game:
         #pg.mixer.music.load(path.join(self.snd_dir, "part4.ogg"))
         #pg.mixer.music.play(loops=-1)
     def show_start_screen(self):
-        self.screen.fill("dark blue")
+        #self.screen.fill("dark blue")
+        ...
+        """
         self.draw_text(
-            "Opplev 2.verdenskrig som en soldat",
+            "Prøv å spill min platformer",
             40,
             "white",
             WIN_WIDTH//4,
             200
         )
-
-        self.draw_text(
-            "W,A,S,D er kontroll tastene og SPACE for å hoppe.",
-            30, 
-            "white",
-            WIN_WIDTH//4, 
-            400
-        )
-        self.draw_text(
-            "Press en key for å begynne",
-            20,
-            "white",
-            WIN_WIDTH//4,
-            600
-        )
+        """
+        
         pg.display.flip()
         self.wait_for_key()
     def show_over_screen(self):
@@ -186,9 +210,6 @@ class Game:
                     self.running = False 
                 if event.type == pg.KEYUP:
                     waiting = False
-
-
-
     def show_go_screen(self):
         ...
     def draw_text(self, text, size, color, x, y):

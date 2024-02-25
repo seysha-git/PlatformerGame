@@ -1,11 +1,12 @@
 import pygame as pg
 import os
+pg.init()
 
 
 WIN_WIDTH = 1400
 WIN_HEIGHT = 800
 
-
+SCROLLING_TEXT_FONT = pg.font.Font("freesansbold.ttf", 24)
 
 TITLE = "WW2 Story gmae"
 FONT_NAME = 'arial'

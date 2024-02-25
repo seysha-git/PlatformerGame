@@ -20,6 +20,7 @@ class GroundPlatform(pg.sprite.Sprite):
              "lava": self.game.spritesheet_platform.get_image(504,0,70,70),
              "stone_wall": self.game.spritesheet_platform.get_image(72,288,70,70),
              "stone_jump": self.game.spritesheet_platform.get_image(144,144,70,70),
+             "liquid_water": self.game.spritesheet_platform.get_image(504,216,70,70),
              
         }
         self.image = self.images[type]
@@ -82,14 +83,10 @@ class MovingJumpPlatform(JumpPlatform):
         super().__init__(game, x, y)
         self.time = time
         self.direction = 1
-        self.pow = None
         if rd.randrange(3) < POWER_COUNT:
-            self.pow = Pow(self.game, self)
-            self.curr += 1
+            Pow(self.game, self)
     def horizontal_movement(self):
         self.rect.x += self.direction
-        if self.pow != None:
-            self.pow.rect.centerx = self.rect.centerx
         now = pg.time.get_ticks()
         if (now - self.time) // 1000 >= 3:
             self.direction *= -1
