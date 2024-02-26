@@ -1,5 +1,6 @@
 import pygame as pg
 from settings import *
+from modules.items import *
 from modules.characters import *
 from modules.platforms import *
 import random as rd
@@ -15,10 +16,12 @@ class Part2:
         self.vel = 1
         self.jump_platform_cordinates = [
             (1000,600),
-            (900, 400),
+            (850, 500),
+            (990, 200),
             (1100,188),
             (1200,100),
             (1300,530),
+            (1300,400),
 
         ]
     
@@ -31,16 +34,14 @@ class Part2:
     def new(self):
         self.enemies_timer = 0 
         self.platform_timer = 0
-        for i in range(1,20):
-            GroundPlatform(self.game, 1500 + 50 + i*70, WIN_HEIGHT//2)
         for i in range(1,10):
-            PortalPlatform(self.game, 1600,70*i- 1000)
+            GroundPlatform(self.game, 1500 + 50 + i*70, WIN_HEIGHT//2)
         for pos in self.jump_platform_cordinates:
             rand = rd.randint(0,1)
             if rand:
                 MovingJumpPlatform(self.game,pos[0],pos[1], self.platform_timer)
             else:
-                JumpPlatform(self.game, pos[0], pos[1])
+                JumpPlatform(self.game, pos[0], pos[1], self.platform_timer)
         #self.background()
         self.update() 
         
@@ -48,7 +49,7 @@ class Part2:
     def move_portal_down(self):
         for item in self.game.portals:
             if not self.portal_closed:
-                item.rect.y += 0.8
+                item.rect.y += 0.5
         self.check_portal_closed()
    
     
@@ -68,21 +69,12 @@ class Part2:
         now = pg.time.get_ticks()
         if (now - self.enemies_timer) // 1000 > 3:
             self.enemies_timer = now 
-            i = 0
-            while i < 3:
-                el = EnemyFly(self.game)
-                hit = pg.sprite.spritecollide(el, self.game.enemies, False)
-                if hit:
-                    for n in hit:
-                        if n != el:
-                            print("collided, try again")
-                            el.kill()
-                    else:       
-                        i += 1
+            el = EnemyFly(self.game, rd.randint(900,1000), rd.randint(WIN_HEIGHT, WIN_HEIGHT + 200))
+                
     def update(self):
         self.move_plat()
         self.move_portal_down()
-        self.create_enemies()
+        #self.create_enemies()
 
         
            

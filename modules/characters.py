@@ -22,7 +22,6 @@ class Player(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
-        self.collision_rect = self.collision_box()
         self.pos = vec(WIN_WIDTH//2-300, WIN_HEIGHT//2)
         self.vel = vec(0,0)
         self.acc = vec(0,0)
@@ -51,7 +50,7 @@ class Player(pg.sprite.Sprite):
         ]
         self.jump_frame[0].set_colorkey("black")
 
-    def jump(self):
+    def jump(self): 
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.jump_platforms, False) or pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         self.rect.x -= 1
@@ -61,11 +60,6 @@ class Player(pg.sprite.Sprite):
             self.game.jump_sound.play()
     def collide_with_check_point(self):
         ...
-    def jump_cut(self):
-        if self.jumping:
-            if self.vel.y < -3:
-                self.vel.y = -3
-
     def enemies_collision(self):
         enemies = pg.sprite.spritecollide(self, self.game.enemies, True, pg.sprite.collide_mask)
         if enemies:
@@ -82,13 +76,8 @@ class Player(pg.sprite.Sprite):
         self.check_alive()
         if pg.sprite.spritecollide(self, self.game.portals, False):
             self.pos.x -= 70
-        self.acc.x += self.vel.x * -MAIN_FRICTION
-        self.vel += self.acc
-        if abs(self.vel.x) < 0.1:
-            self.vel.x = 0 
+
         
-        self.pos += self.vel + 0.5*self.acc
-        self.rect.midbottom = self.pos
         if self.vel.y > 0:
             self.ground_plat_collission()
             self.jump_plat_colission()
@@ -106,7 +95,7 @@ class Player(pg.sprite.Sprite):
             lowest = jump_plat_hit[0]
             for hit in jump_plat_hit:
                 if hit.rect.bottom > lowest.rect.bottom:
-                    lowest = jump_plat_hit
+                    lowest = jump_plat_hit[0]
                 if isinstance(hit,MovingJumpPlatform):
                     self.on_moving_plat = True
                     self.pos.x=  hit.rect.centerx
@@ -119,7 +108,6 @@ class Player(pg.sprite.Sprite):
                 
             
 
-
     def powerup_collision(self):
         pow_hits = pg.sprite.spritecollide(self, self.game.powerups, True)
         for pow in pow_hits:
@@ -127,11 +115,21 @@ class Player(pg.sprite.Sprite):
                 self.game.gems_sound.play()
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
+        self.vel.x = 0
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
             self.acc.x = MAIN_ACC
-        if keys[pg.K_a]:
+        if keys[pg.K_a] and self.pos.x > 100:
             self.acc.x = -MAIN_ACC
+        
+        #self.acc.x += self.vel.x# * -MAIN_FRICTION
+        self.vel += self.acc
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0 
+        
+        self.pos += self.vel + 0.5*self.acc
+
+        self.rect.midbottom = self.pos
 
             
     def animate(self):
@@ -143,7 +141,7 @@ class Player(pg.sprite.Sprite):
         else:
             self.walking = False 
         if self.walking:
-            if now -self.last_update > 300:
+            if now -self.last_update > 200:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
                 bottom = self.rect.bottom
@@ -165,14 +163,9 @@ class Player(pg.sprite.Sprite):
     def draw_healthbar(self):
         pg.draw.rect(self.game.screen, (255, 0,0), (self.rect.x, self.rect.y - 20, self.rect.width, 10 ))
         pg.draw.rect(self.game.screen, (00, 255,0), (self.rect.x, self.rect.y - 20, self.rect.width * (1-((self.max_health - self.health))/self.max_health), 10 ))
-    def collision_box(self):
-        vel = 20
-        return pg.Rect(self.rect.x + vel, self.rect.y + vel, self.rect.width, self.rect.height)
-        
-
 
 class EnemyFly(pg.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, x,y):
         self._layer = ENEMIES_LAYER
         self.groups = game.all_sprites, game.enemies
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -183,10 +176,9 @@ class EnemyFly(pg.sprite.Sprite):
         self.image_down.set_colorkey("black")
         self.image = self.image_up
         self.rect = self.image.get_rect()
-        self.rect.centerx = rd.randint(WIN_WIDTH//2, WIN_WIDTH)
-        self.rect.centery = rd.randint(WIN_HEIGHT, WIN_HEIGHT+50)
+        self.rect.x = x
+        self.rect.y = y
         self.vy = rd.randrange(2,4)
-        self.rect.y = 600
 
     def update(self):
         self.rect.y -= self.vy 

@@ -3,7 +3,6 @@ import sys
 from settings import *
 from modules.characters import *
 from os import path
-from utils import Spritesheet
 from parts.part1 import Part1
 from parts.part2 import Part2
 from modules.menu import Button
@@ -22,9 +21,9 @@ class Game:
         self.BG = pg.transform.scale(self.v, (WIN_WIDTH, WIN_HEIGHT))
         self.clock = pg.time.Clock()
         self.running = True
+
         self.font_name = pg.font.match_font(FONT_NAME)
         self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 24)
-
         self.snip = self.scrolling_text_font.render('', True, 'white')
         self.messages = [
             "Test 1",
@@ -42,6 +41,8 @@ class Game:
         self.not_passed = True  # Initialize not_passed at class level
         self.load_data()
 
+        self.check_point_active = False
+
         self.parts = [Part1(self), Part2(self)]
     def new(self):
         
@@ -52,6 +53,7 @@ class Game:
         self.background_sprites = pg.sprite.Group()
 
         self.powerups = pg.sprite.Group()
+        self.spikes = pg.sprite.Group()
         self.portals = pg.sprite.Group()
         self.grounds = pg.sprite.Group()
         self.check_points = pg.sprite.Group()
@@ -90,7 +92,7 @@ class Game:
         self.scroll_items = list(self.ground_platforms) \
             + list(self.jump_platforms) + list(self.background_sprites) \
             + list(self.portals) + list(self.check_points) + list(self.enemies)\
-            + list(self.powerups)
+            + list(self.powerups) + list(self.spikes)
         
         
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
@@ -100,28 +102,22 @@ class Game:
         self.all_sprites.update()
         self.scroll_page()        
     def scroll_page(self):
-        if self.player.rect.right >= WIN_WIDTH-300:
-            self.player.pos.x -= abs(self.player.vel.x)
-            for p in self.scroll_items:
-                p.rect.x -= abs(self.player.vel.x)
-        if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x > 0:
-            self.player.pos.x += (abs(self.player.vel.x))
-            for p in self.scroll_items:
-                p.rect.x += abs(self.player.vel.x)
+        if self.player.rect.x > 100:
+            if self.player.rect.right >= WIN_WIDTH-300:
+                self.player.pos.x -= abs(self.player.vel.x)
+                for p in self.scroll_items:
+                    p.rect.x -= abs(self.player.vel.x)
+            if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x > 0:
+                self.player.pos.x += (abs(self.player.vel.x))
+                for p in self.scroll_items:
+                    p.rect.x += abs(self.player.vel.x)
     def move_screen(self, screen_width):
         self.check_point_hit = pg.time.get_ticks()
-        
-        if self.screen.get_width() - self.player.pos.x < screen_width:
-            #self.info_screen()
+        if WIN_WIDTH - self.player.pos.x > screen_width:
             self.player.vel.x = 0
             self.player.pos.x -= SCREEN_SCROLL_SPEED
             for p in self.scroll_items:
                 p.rect.x -= SCREEN_SCROLL_SPEED
-                #self.info_screen()
-        else:
-             for el in self.check_points:
-                el.rect.x = - self.player.pos.x - 150
-             self.info_screen()
     def create_animated_text(self):
         if self.active_message <2:
             if self.counter < self.speed * len(self.message):
@@ -133,7 +129,7 @@ class Game:
             pg.draw.ellipse(self.screen, "light green", (190,190,300,100))
             self.screen.blit(self.snip, (320,220))
     def events(self):
-        self.create_animated_text()
+        #self.create_animated_text()
         #self.draw_scrolling_text("Prøv å spill min platformer")
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -151,16 +147,11 @@ class Game:
                     self.message = self.messages[self.active_message]
                     self.counter = 0
                 
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_SPACE:
-                    self.player.jump_cut()
 
         self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "black")
             
-
     def draw(self):
         self.screen.blit(self.BG, (0,0))
-        self.draw_animated_text()
         self.player.draw_healthbar()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
@@ -200,10 +191,9 @@ class Game:
         pg.display.flip()
         self.wait_for_key()
     def show_over_screen(self):
-        self.screen.fill("black")
-        pg.display.flip()
-        pg.time.delay(500)
-        sys.exit()
+        self.show_start_screen()
+        self.new()
+        self.wait_for_key()
     def wait_for_key(self):
         waiting = True
         while waiting:
@@ -213,6 +203,7 @@ class Game:
                 if event.type == pg.QUIT:
                     waiting = False 
                     self.running = False 
+                    sys.exit()
             if self.play_button.pressed:
                 waiting = False
     def show_go_screen(self):
