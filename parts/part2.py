@@ -15,13 +15,14 @@ class Part2:
         self.portal_closed = False
         self.vel = 1
         self.jump_platform_cordinates = [
-            (1000,600),
-            (850, 500),
-            (990, 200),
-            (1100,188),
-            (1200,100),
-            (1300,530),
-            (1300,400),
+            (850,600),
+            (950, 500),
+            (1100, 200),
+            (1200,188),
+            (1300,100),
+            (1000,530),
+            (1200,400),
+            (1400, 400)
 
         ]
     
@@ -43,15 +44,11 @@ class Part2:
             else:
                 JumpPlatform(self.game, pos[0], pos[1], self.platform_timer)
         #self.background()
+        #self.check_point_2 = CheckPoint(self.game, 1700, WIN_HEIGHT//2)
+
         self.update() 
         
         
-    def move_portal_down(self):
-        for item in self.game.portals:
-            if not self.portal_closed:
-                item.rect.y += 0.5
-        self.check_portal_closed()
-   
     
     def move_plat(self):
         for plat in self.game.jump_platforms:
@@ -73,7 +70,6 @@ class Part2:
                 
     def update(self):
         self.move_plat()
-        self.move_portal_down()
         #self.create_enemies()
 
         

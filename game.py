@@ -42,6 +42,7 @@ class Game:
         self.load_data()
 
         self.check_point_active = False
+        self.x = False
 
         self.parts = [Part1(self), Part2(self)]
     def new(self):
@@ -97,24 +98,23 @@ class Game:
         
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
             self.show_over_screen()
+        self.scroll_page() 
         for part in self.parts:
             part.update()
         self.all_sprites.update()
-        self.scroll_page()        
+               
     def scroll_page(self):
-        if self.player.rect.x > 100:
-            if self.player.rect.right >= WIN_WIDTH-300:
-                self.player.pos.x -= abs(self.player.vel.x)
-                for p in self.scroll_items:
-                    p.rect.x -= abs(self.player.vel.x)
-            if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x > 0:
-                self.player.pos.x += (abs(self.player.vel.x))
-                for p in self.scroll_items:
-                    p.rect.x += abs(self.player.vel.x)
-    def move_screen(self, screen_width):
-        self.check_point_hit = pg.time.get_ticks()
-        if WIN_WIDTH - self.player.pos.x > screen_width:
-            self.player.vel.x = 0
+        if self.player.rect.right >= WIN_WIDTH-200:
+            self.player.pos.x -= abs(self.player.vel.x)
+            for p in self.scroll_items:
+                p.rect.x -= abs(self.player.vel.x)
+        if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x + self.player.rect.width + 50 > 0:
+            self.player.pos.x += (abs(self.player.vel.x))
+            for p in self.scroll_items:
+                p.rect.x += abs(self.player.vel.x)
+    def move_screen(self):
+            print("move screen")
+            self.player.vel.x = SCREEN_SCROLL_SPEED
             self.player.pos.x -= SCREEN_SCROLL_SPEED
             for p in self.scroll_items:
                 p.rect.x -= SCREEN_SCROLL_SPEED

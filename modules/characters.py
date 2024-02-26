@@ -74,10 +74,6 @@ class Player(pg.sprite.Sprite):
         self.enemies_collision()
         self.move()
         self.check_alive()
-        if pg.sprite.spritecollide(self, self.game.portals, False):
-            self.pos.x -= 70
-
-        
         if self.vel.y > 0:
             self.ground_plat_collission()
             self.jump_plat_colission()
@@ -119,7 +115,7 @@ class Player(pg.sprite.Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
             self.acc.x = MAIN_ACC
-        if keys[pg.K_a] and self.pos.x > 100:
+        if keys[pg.K_a]:
             self.acc.x = -MAIN_ACC
         
         #self.acc.x += self.vel.x# * -MAIN_FRICTION
