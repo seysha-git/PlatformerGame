@@ -2,10 +2,9 @@ import pygame as pg
 import sys
 from settings import *
 from modules.characters import *
+from modules.guide_items import *
 from os import path
-from parts.part1 import Part1
-from parts.part2 import Part2
-from modules.menu import Button
+from levels import Level1, Level2
 pg.font.init()
 
 
@@ -19,32 +18,21 @@ class Game:
         self.screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         self.v = pg.image.load(os.path.join("images", "background0.png")).convert()
         self.BG = pg.transform.scale(self.v, (WIN_WIDTH, WIN_HEIGHT))
+        self.font_name = pg.font.match_font(FONT_NAME)
+
         self.clock = pg.time.Clock()
         self.running = True
-
-        self.font_name = pg.font.match_font(FONT_NAME)
-        self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 24)
-        self.snip = self.scrolling_text_font.render('', True, 'white')
-        self.messages = [
-            "Test 1",
-            "test 2", 
-            "test 3"
-        ]
-        self.active_message = 0
-        self.message =self.messages[self.active_message]
-        self.counter = 0
-        self.speed = 3
-        self.done = False
-
 
         self.check_point_hit = 0
         self.not_passed = True  # Initialize not_passed at class level
         self.load_data()
 
+        self.scroll_distance = 0
+
         self.check_point_active = False
         self.x = False
 
-        self.parts = [Part1(self), Part2(self)]
+        self.levels = [Level1(self), Level2(self)]
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -61,8 +49,8 @@ class Game:
         self.enemies = pg.sprite.Group()
         self.player = Player(self)
 
-        for part in self.parts:
-            part.new()
+        for lvl in self.levels:
+            lvl.new()
         
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
@@ -95,42 +83,37 @@ class Game:
             + list(self.portals) + list(self.check_points) + list(self.enemies)\
             + list(self.powerups) + list(self.spikes)
         
-        
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
             self.show_over_screen()
         self.scroll_page() 
-        for part in self.parts:
-            part.update()
+
+        for lvl in self.levels:
+            lvl.update()
         self.all_sprites.update()
                
     def scroll_page(self):
-        if self.player.rect.right >= WIN_WIDTH-200:
-            self.player.pos.x -= abs(self.player.vel.x)
+        if self.player.rect.right >= WIN_WIDTH-400:
+            print("scroll screen")
+            self.player.pos.x -= abs(self.player.acc.x + 2)
             for p in self.scroll_items:
-                p.rect.x -= abs(self.player.vel.x)
+                p.rect.x -= abs(self.player.acc.x + 2)
         if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x + self.player.rect.width + 50 > 0:
-            self.player.pos.x += (abs(self.player.vel.x))
+            self.player.pos.x += (abs(self.player.acc.x + 2))
             for p in self.scroll_items:
-                p.rect.x += abs(self.player.vel.x)
+                p.rect.x += abs(self.player.acc.x + 2)
     def move_screen(self):
             print("move screen")
             self.player.vel.x = SCREEN_SCROLL_SPEED
             self.player.pos.x -= SCREEN_SCROLL_SPEED
+            self.scroll_distance -= SCREEN_SCROLL_SPEED
             for p in self.scroll_items:
                 p.rect.x -= SCREEN_SCROLL_SPEED
     def create_animated_text(self):
-        if self.active_message <2:
-            if self.counter < self.speed * len(self.message):
-                self.counter += 1
-            elif self.counter >= self.speed* len(self.message):
-                self.done = True
-    def draw_animated_text(self):
-        if self.active_message < 2:
-            pg.draw.ellipse(self.screen, "light green", (190,190,300,100))
-            self.screen.blit(self.snip, (320,220))
+        self.level1_guide = LevelGuide(self)
+        self.level1_guide.update_text()
+
     def events(self):
         #self.create_animated_text()
-        #self.draw_scrolling_text("Prøv å spill min platformer")
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
@@ -139,39 +122,21 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
-                print(self.done, self.active_message)
-                if event.key == pg.K_RETURN and self.done and self.active_message < len(self.messages)-1:
-                    print("create new")
-                    self.active_message += 1
-                    self.done = False
-                    self.message = self.messages[self.active_message]
-                    self.counter = 0
+                #if event.key == pg.K_RETURN and self.level1_guide.done and self.level1_guide.active_message < len(level_guide.messages)-1:
+                 #   print("create new")
+                    #self.level1_guide.create_new()
                 
 
-        self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "black")
+        
             
     def draw(self):
         self.screen.blit(self.BG, (0,0))
         self.player.draw_healthbar()
+        #self.level1_guide.draw_text()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 
         pg.display.update()
-    def info_screen(self):
-        message = "Mål: Kom deg til andre side uten å bli truffet eller treffe vannet"
-        self.screen.fill("light blue")
-        self.draw_text(
-            message,
-            40,
-            "white",
-            200,
-            350
-        )
-        #pg.display.flip()
-        #pg.mixer.music.fadeout(500)
-        self.wait_for_key()
-        #pg.mixer.music.load(path.join(self.snd_dir, "part4.ogg"))
-        #pg.mixer.music.play(loops=-1)
     def show_start_screen(self):
         self.screen.fill("light green")
         self.draw_text("Mitt Platform spill", 100, "white",200,180)

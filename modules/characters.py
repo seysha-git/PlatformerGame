@@ -22,7 +22,7 @@ class Player(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
-        self.pos = vec(WIN_WIDTH//2-300, WIN_HEIGHT//2)
+        self.pos = vec(WIN_WIDTH//2-400, WIN_HEIGHT//2) #WIN_WIDTH+400
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.health = 100
@@ -122,11 +122,8 @@ class Player(pg.sprite.Sprite):
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0 
-        
         self.pos += self.vel + 0.5*self.acc
-
         self.rect.midbottom = self.pos
-
             
     def animate(self):
         now = pg.time.get_ticks()

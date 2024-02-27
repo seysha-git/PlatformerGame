@@ -33,7 +33,8 @@ class BackgroundPlatform(Platform):
         self.images = {
              "sign_left": self.game.spritesheet_platform.get_image(288, 216,70,70),
              "cloud": self.game.spritesheet_items.get_image(0, 146,128,71), 
-             "water": self.game.spritesheet_platform.get_image(504, 216,70,70)
+             "water": self.game.spritesheet_platform.get_image(504, 216,70,70),
+             "flag_green":self.game.spritesheet_items.get_image(216,432,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")
