@@ -17,7 +17,7 @@ class Level:
         if hit:
             print("hit")
             self.game.check_point_active = True
-            self.game.scroll_distance = 450
+            self.game.scroll_distance = 400
             # Activate the scroll timer
             self.scroll_timer = pg.time.get_ticks()
 
@@ -77,7 +77,7 @@ class Level2(Level):
     def background(self):
         BackgroundPlatform(self.game, WIN_WIDTH, WIN_HEIGHT//4, "cloud")
         BackgroundPlatform(self.game, WIN_WIDTH, WIN_HEIGHT//2, "cloud")
-        BackgroundPlatform(self.game, 2000, WIN_HEIGHT-140, "flag_green")
+        BackgroundPlatform(self.game, 1700, WIN_HEIGHT-140, "flag_green")
         #BackgroundPlatform(self.game, WIN_WIDTH, WIN_HEIGHT//1, "cloud")
 
         #self.level_1_text = LevelGuide("level_1")
@@ -98,7 +98,7 @@ class Level2(Level):
             else:
                 JumpPlatform(self.game, pos[0], pos[1], self.platform_timer)
         self.background()
-        self.check_point_2 = CheckPoint(self.game, 1800, WIN_HEIGHT-140)
+        self.check_point_2 = CheckPoint(self.game, 2000, WIN_HEIGHT-140)
 
     def move_plat(self):
         for plat in self.game.jump_platforms:

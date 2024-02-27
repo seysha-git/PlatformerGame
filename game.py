@@ -50,8 +50,10 @@ class Game:
         self.enemies = pg.sprite.Group()
         self.player = Player(self)
 
-        self.level1_guide = LevelGuide(self)
+        self.level1_guide = LevelGuide(self, 200,100, "Nivå 1: Hoppe-bane")
         self.guides.append(self.level1_guide)
+        self.level2_guide = LevelGuide(self, 1800, WIN_HEIGHT//4, "Nivå 2: Hent nøkkelen")
+        self.guides.append(self.level2_guide)
 
         for lvl in self.levels:
             lvl.new()
@@ -131,7 +133,8 @@ class Game:
     def draw(self):
         self.screen.blit(self.BG, (0,0))
         self.player.draw_healthbar()
-        self.guides[0].draw()
+        for i in self.guides:
+            i.draw()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 

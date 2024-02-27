@@ -31,11 +31,11 @@ class Button:
 
 
 class LevelGuide():
-    def __init__(self, game):
+    def __init__(self, game, x, y, text):
         self.groups =  game.all_sprites, game.guides,
         self.game = game
         self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 28)
-        self.snip = self.scrolling_text_font.render('Nivå 1: Følg stjernen', True, 'white')
+        self.snip = self.scrolling_text_font.render(text, True, 'white')
         
         self.levels_messages = [ 
             "Test 1",
@@ -43,7 +43,7 @@ class LevelGuide():
             "Test 3"
 
         ]
-        self.rect = pg.Rect(200,100,400,170)
+        self.rect = pg.Rect(x,y,400,170)
 
         self.active_message = 0
         self.message = self.levels_messages[self.active_message]
@@ -62,7 +62,7 @@ class LevelGuide():
     def draw(self):
         #self.update_text()
         pg.draw.rect(self.game.screen, "#475F77", self.rect, border_radius= 12)
-        self.game.screen.blit(self.snip, (self.rect.x + 50, self.rect.y + 50))
+        self.game.screen.blit(self.snip, (self.rect.x + 60, self.rect.y + 70))
     def create_new(self):
         self.active_message += 1
         self.done = False
