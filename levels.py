@@ -80,7 +80,7 @@ class Level2(Level):
         BackgroundPlatform(self.game, 2000, WIN_HEIGHT-140, "flag_green")
         #BackgroundPlatform(self.game, WIN_WIDTH, WIN_HEIGHT//1, "cloud")
 
-        self.level_1_text = LevelGuide("level_1")
+        #self.level_1_text = LevelGuide("level_1")
         #self.level_1_text.new_message()
 
 

@@ -30,19 +30,20 @@ class Button:
 
 
 
-class LevelGuide:
+class LevelGuide():
     def __init__(self, game):
+        self.groups =  game.all_sprites, game.guides,
         self.game = game
-        self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 24)
-        self.snip = self.scrolling_text_font.render('', True, 'white')
-
+        self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 28)
+        self.snip = self.scrolling_text_font.render('Nivå 1: Følg stjernen', True, 'white')
+        
         self.levels_messages = [ 
             "Test 1",
             "Test 2",
             "Test 3"
 
-
         ]
+        self.rect = pg.Rect(200,100,400,170)
 
         self.active_message = 0
         self.message = self.levels_messages[self.active_message]
@@ -56,12 +57,12 @@ class LevelGuide:
                 self.counter += 1
             elif self.counter >= self.speed* len(self.message):
                 self.done = True
-        self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "black")
+        self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "white")
         
-    def draw_text(self):
-        self.update_text()
-        pg.draw.ellipse(self.game.screen, "light green", (190,190,300,100))
-        self.game.screen.blit(self.snip, (320,220))
+    def draw(self):
+        #self.update_text()
+        pg.draw.rect(self.game.screen, "#475F77", self.rect, border_radius= 12)
+        self.game.screen.blit(self.snip, (self.rect.x + 50, self.rect.y + 50))
     def create_new(self):
         self.active_message += 1
         self.done = False

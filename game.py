@@ -42,12 +42,16 @@ class Game:
         self.background_sprites = pg.sprite.Group()
 
         self.powerups = pg.sprite.Group()
+        self.guides = []
         self.spikes = pg.sprite.Group()
         self.portals = pg.sprite.Group()
         self.grounds = pg.sprite.Group()
         self.check_points = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.player = Player(self)
+
+        self.level1_guide = LevelGuide(self)
+        self.guides.append(self.level1_guide)
 
         for lvl in self.levels:
             lvl.new()
@@ -81,7 +85,7 @@ class Game:
         self.scroll_items = list(self.ground_platforms) \
             + list(self.jump_platforms) + list(self.background_sprites) \
             + list(self.portals) + list(self.check_points) + list(self.enemies)\
-            + list(self.powerups) + list(self.spikes)
+            + list(self.powerups) + list(self.spikes) + self.guides
         
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
             self.show_over_screen()
@@ -108,12 +112,7 @@ class Game:
             self.scroll_distance -= SCREEN_SCROLL_SPEED
             for p in self.scroll_items:
                 p.rect.x -= SCREEN_SCROLL_SPEED
-    def create_animated_text(self):
-        self.level1_guide = LevelGuide(self)
-        self.level1_guide.update_text()
-
     def events(self):
-        #self.create_animated_text()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
@@ -132,7 +131,7 @@ class Game:
     def draw(self):
         self.screen.blit(self.BG, (0,0))
         self.player.draw_healthbar()
-        #self.level1_guide.draw_text()
+        self.guides[0].draw()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
 
