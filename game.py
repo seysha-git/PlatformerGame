@@ -4,9 +4,7 @@ from settings import *
 from modules.characters import *
 from modules.guide_items import *
 from os import path
-from game_state import GameStateManger
-from states.start import Start
-from states.levels.level1 import Level1
+from levels import Level1, Level2
 pg.font.init()
 
 
@@ -21,7 +19,7 @@ class Game:
         self.v = pg.image.load(os.path.join("images", "background0.png")).convert()
         self.BG = pg.transform.scale(self.v, (WIN_WIDTH, WIN_HEIGHT))
         self.font_name = pg.font.match_font(FONT_NAME)
-        self.gameStateManager = GameStateManger("start")
+
         self.clock = pg.time.Clock()
         self.running = True
 
@@ -33,15 +31,8 @@ class Game:
 
         self.check_point_active = False
         self.x = False
-        
-        self.levels = [Level1(self, self.screen, self.gameStateManager)]
 
-        self.level1 = Level1(self, self.screen, self.gameStateManager)
-        self.start = Start(self, self.screen, self.gameStateManager)
-        self.states = {
-            "start":self.start,
-            "level1":self.level1
-        }
+        self.levels = [Level1(self), Level2(self)]
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -58,8 +49,12 @@ class Game:
         self.check_points = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.player = Player(self)
+
+
+        for lvl in self.levels:
+            lvl.new()
         
-        #pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
+        pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
 
     def load_data(self):
@@ -74,11 +69,14 @@ class Game:
         self.gems_sound = pg.mixer.Sound(path.join(self.snd_dir, "boost.wav"))
 
     def run(self):
-        while True:
+        #pg.mixer.music.play(loops=-1)
+        self.playing = True
+        while self.playing:
             self.clock.tick(FPS)
             self.events()
-            self.states[self.gameStateManager.get_state()].run()
-        #pg.mixer.music.fadeout(500)
+            self.update()
+            self.draw()
+        pg.mixer.music.fadeout(500)
     def update(self):
         self.player.not_hit_portal = True
         self.scroll_items = list(self.ground_platforms) \
@@ -89,6 +87,9 @@ class Game:
         if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
             self.show_over_screen()
         self.scroll_page() 
+
+        for lvl in self.levels:
+            lvl.update()
         self.all_sprites.update()
                
     def scroll_page(self):
@@ -111,17 +112,21 @@ class Game:
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                sys.exit()
+                if self.playing:
+                    self.playing = False
+                self.running = False 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
-                    self.player.jump()
-                #if event.type == pg.KEYDOWN:
-                 #   self.gameStateManager.set_state("level1")
+                    self.player.jump()        
+            
     def draw(self):
         self.screen.blit(self.BG, (0,0))
         self.player.draw_healthbar()
+        for i in self.guides:
+            i.draw()
         self.all_sprites.draw(self.screen)
         self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
+
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")
@@ -155,6 +160,8 @@ class Game:
                     waiting = False 
                     self.running = False 
                     sys.exit()
+            if self.play_button.pressed:
+                waiting = False
     def show_go_screen(self):
         ...
     def draw_text(self, text, size, color, x, y):
