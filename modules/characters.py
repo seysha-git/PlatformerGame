@@ -81,10 +81,11 @@ class Player(pg.sprite.Sprite):
     def ground_plat_collission(self):
         hits = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         if hits:
-            #if self.pos.y < hits[0].rect.bottom:
-            self.pos.y = hits[0].rect.top
-            self.vel.y = 0
-            self.jumping = False
+            if self.pos.y < hits[0].rect.bottom:
+                self.pos.y = hits[0].rect.top
+                self.vel.y = 0
+                self.jumping = False
+            print("move on the new thing")
     def jump_plat_colission(self):
         jump_plat_hit = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
         if jump_plat_hit:
