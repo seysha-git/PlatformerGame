@@ -3,8 +3,8 @@ import os
 pg.init()
 
 
-WIN_WIDTH = 1400
-WIN_HEIGHT = 800
+WIN_WIDTH = 1500
+WIN_HEIGHT = 900
 
 SCROLLING_TEXT_FONT = pg.font.Font("freesansbold.ttf", 24)
 MENU_FONT = pg.font.Font("freesansbold.ttf", 24)
@@ -16,6 +16,7 @@ SPRITESHEET_CHAR = "p1_spritesheet.png"
 SPRITESHEET_PLATFORM = "tiles_spritesheet.png"
 SPRITESHEET_ITEMS = "items_spritesheet.png"
 SPRITESHEET_ENEMIES = "enemies_spritesheet.png"
+SPRITESHEET_HUD = "hud_spritesheet.png"
 
 SCREEN_SCROLL_SPEED = 10
 

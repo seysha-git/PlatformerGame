@@ -4,7 +4,7 @@ from settings import *
 from modules.characters import *
 from modules.guide_items import *
 from os import path
-from levels import Level1, Level2
+from parts.part1 import Part1
 pg.font.init()
 
 
@@ -22,17 +22,13 @@ class Game:
 
         self.clock = pg.time.Clock()
         self.running = True
-
-        self.check_point_hit = 0
-        self.not_passed = True  # Initialize not_passed at class level
         self.load_data()
 
         self.scroll_distance = 0
 
         self.check_point_active = False
-        self.x = False
 
-        self.levels = [Level1(self), Level2(self)]
+        self.levels = [Part1(self)]
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -42,9 +38,10 @@ class Game:
         self.background_sprites = pg.sprite.Group()
 
         self.powerups = pg.sprite.Group()
-        self.guides = []
+        self.logos =pg.sprite.Group()
+        self.boosters = pg.sprite.Group()
         self.spikes = pg.sprite.Group()
-        self.portals = pg.sprite.Group()
+        self.walls = pg.sprite.Group()
         self.grounds = pg.sprite.Group()
         self.check_points = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
@@ -64,6 +61,7 @@ class Game:
         self.spritesheet_platform = Spritesheet(path.join(img_dir, SPRITESHEET_PLATFORM))
         self.spritesheet_items = Spritesheet(path.join(img_dir, SPRITESHEET_ITEMS))
         self.spritesheet_enemies = Spritesheet(path.join(img_dir, SPRITESHEET_ENEMIES))
+        self.spritesheet_huds = Spritesheet(path.join(img_dir, SPRITESHEET_HUD))
         self.snd_dir = path.join(self.dir, "sounds")
         self.jump_sound = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav"))
         self.gems_sound = pg.mixer.Sound(path.join(self.snd_dir, "boost.wav"))
@@ -81,27 +79,24 @@ class Game:
         self.player.not_hit_portal = True
         self.scroll_items = list(self.ground_platforms) \
             + list(self.jump_platforms) + list(self.background_sprites) \
-            + list(self.portals) + list(self.check_points) + list(self.enemies)\
-            + list(self.powerups) + list(self.spikes) + self.guides
-        
-        if self.player.rect.y + self.player.vel.y + self.player.rect.height > WIN_HEIGHT:
-            self.show_over_screen()
+            + list(self.walls) + list(self.check_points) + list(self.enemies)\
+            + list(self.powerups) + list(self.spikes) +  list(self.boosters)
         self.scroll_page() 
-
         for lvl in self.levels:
             lvl.update()
         self.all_sprites.update()
                
     def scroll_page(self):
-        if self.player.rect.right >= WIN_WIDTH-400:
+        if self.player.rect.top <= 50:
             print("scroll screen")
-            self.player.pos.x -= abs(self.player.acc.x + 2)
+            self.player.pos.y += abs(self.player.acc.y + 2)
             for p in self.scroll_items:
-                p.rect.x -= abs(self.player.acc.x + 2)
-        if self.player.rect.left <= 100 and self.player.rect.x + self.player.vel.x + self.player.rect.width + 50 > 0:
-            self.player.pos.x += (abs(self.player.acc.x + 2))
+                p.rect.y += abs(self.player.acc.y + 2)
+        if self.player.rect.top >= WIN_HEIGHT-100:
+            print("scroll screen")
+            self.player.pos.y -= abs(self.player.acc.y + 2)
             for p in self.scroll_items:
-                p.rect.x += abs(self.player.acc.x + 2)
+                p.rect.y -= abs(self.player.acc.y + 2)
     def move_screen(self):
             print("move screen")
             self.player.vel.x = SCREEN_SCROLL_SPEED
@@ -120,12 +115,9 @@ class Game:
                     self.player.jump()        
             
     def draw(self):
-        self.screen.blit(self.BG, (0,0))
-        self.player.draw_healthbar()
-        for i in self.guides:
-            i.draw()
+        self.screen.fill((48, 60, 79))#self.screen.blit(self.BG, (0,0))
         self.all_sprites.draw(self.screen)
-        self.draw_text(f"Level {0}/{5}", 35, "white", 50, 50)
+        self.navbar()
 
         pg.display.update()
     def show_start_screen(self):
@@ -170,5 +162,28 @@ class Game:
         text_rect = text_surface.get_rect()
         text_rect.topleft = (x,y)
         self.screen.blit(text_surface, text_rect)
+    def get_logo(self, type):
+        images = {
+            "main": self.spritesheet_huds.get_image(55,49,47,47),
+            "princess": self.spritesheet_huds.get_image(49,190,47,47)
+        }
+        image = images[type]
+        image.set_colorkey("black")
+        return image
+    def navbar(self):
+        max_health = 100
+        health = 100
+        navbar_rect = pg.Rect(0,0, WIN_WIDTH, 80)
+        pg.draw.rect(self.screen, (73, 118, 191), navbar_rect)
+        self.screen.blit(self.get_logo("main"), (30,20))
+        self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
+        pg.draw.rect(self.screen, (255, 0,0), (WIN_WIDTH//2-45, 65, 120, 10 ))
+        pg.draw.rect(self.screen, (00, 255,0), (WIN_WIDTH//2-45, 65, 120 * (1-((max_health - health))/max_health), 10 ))
+        pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-250, 20, 200, 50), 0, 5)
+        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-200, 25)
+
+        #self.draw_text(f"Level {0}/{5}", 35, "white", 50, 30)
+
+
 
         

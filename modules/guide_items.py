@@ -29,6 +29,21 @@ class Button:
             self.top_color = "#475F77"
 
 
+class LogoChar(pg.sprite.Sprite):
+    def __init__(self, game, x,y, type) -> None:
+        self._layer = PLATFORM_LAYER
+        self.groups = game.all_sprites, game.logos
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.images = {
+            "main": self.game.spritesheet_huds.get_image(55,49,47,47),
+            "princess": self.game.spritesheet_huds.get_image(49,141,47,47)
+        }
+        self.image = self.images[type]
+        self.image.set_colorkey("black")
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class LevelGuide():
     def __init__(self, game, x, y, text):

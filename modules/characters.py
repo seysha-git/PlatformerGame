@@ -57,7 +57,7 @@ class Player(pg.sprite.Sprite):
         if hits and not self.jumping:
             self.vel.y = -MAIN_JUMP_VEL
             self.jumping = True
-            self.game.jump_sound.play()
+            #self.game.jump_sound.play()
     def collide_with_check_point(self):
         ...
     def enemies_collision(self):
@@ -81,10 +81,10 @@ class Player(pg.sprite.Sprite):
     def ground_plat_collission(self):
         hits = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         if hits:
-            if self.pos.y < hits[0].rect.bottom:
-                self.pos.y = hits[0].rect.top
-                self.vel.y = 0
-                self.jumping = False
+            #if self.pos.y < hits[0].rect.bottom:
+            self.pos.y = hits[0].rect.top
+            self.vel.y = 0
+            self.jumping = False
     def jump_plat_colission(self):
         jump_plat_hit = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
         if jump_plat_hit:
@@ -108,7 +108,8 @@ class Player(pg.sprite.Sprite):
         pow_hits = pg.sprite.spritecollide(self, self.game.powerups, True)
         for pow in pow_hits:
             if pow.type == "gems":
-                self.game.gems_sound.play()
+                pass
+                #self.game.gems_sound.play()
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
@@ -178,3 +179,8 @@ class EnemyFly(pg.sprite.Sprite):
         self.mask = pg.mask.from_surface(self.image)
         if self.rect.top > WIN_HEIGHT + 100:
             self.kill()
+
+
+
+
+

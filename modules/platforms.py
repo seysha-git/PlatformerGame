@@ -21,8 +21,9 @@ class GroundPlatform(Platform):
         super().__init__(game, x,y,type)
         self.groups = game.all_sprites, game.ground_platforms
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = self.game.spritesheet_platform.get_image(792, 0,70,70)
+        self.image = self.game.spritesheet_platform.get_image(72,288,70,70)
         self.image.set_colorkey("black")
+
 
 class BackgroundPlatform(Platform):
     def __init__(self, game,x,y, type=""):
@@ -39,10 +40,10 @@ class BackgroundPlatform(Platform):
         self.image = self.images[type]
         self.image.set_colorkey("black")
 
-class PortalPlatform(Platform):
+class WallPlatform(Platform):
     def __init__(self, game,x,y):
         super().__init__(game, x,y)
-        self.groups = game.all_sprites, game.portals
+        self.groups = game.all_sprites, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = self.game.spritesheet_platform.get_image(72,288,70,70)
