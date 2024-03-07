@@ -13,6 +13,7 @@ class Player(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.walking = False 
+        self.ducking = False
         self.jumping = False 
         self.not_hit_portal = True
         self.on_moving_plat = False
@@ -41,6 +42,11 @@ class Player(pg.sprite.Sprite):
             self.game.spritesheet_char.get_image(146, 0, 72, 97),
         ]
 
+        self.duck_frame =  [
+            self.game.spritesheet_char.get_image(365, 98, 69, 71),
+            pg.transform.flip(self.game.spritesheet_char.get_image(365, 98, 69, 71), True, False)
+        ]
+
         self.walk_frames_l = []
         for frame in self.walk_frames_r:
             frame.set_colorkey("black")
@@ -48,9 +54,10 @@ class Player(pg.sprite.Sprite):
             
         self.jump_frame = [
             self.game.spritesheet_char.get_image(438,93,67,94),
-            self.game.spritesheet_char.get_image(438, 0, 69, 92),
+            pg.transform.flip(self.game.spritesheet_char.get_image(438,93,67,94), True, False)
+            
         ]
-        self.jump_frame[0].set_colorkey("black")
+
 
     def jump(self): 
         self.rect.x += 1
@@ -81,7 +88,7 @@ class Player(pg.sprite.Sprite):
         if hit:
             for i in hit:
                 if i.type == "lava":
-                    sys.exit()
+                    print("dead")
     def update(self):
         #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
         self.animate()
@@ -116,8 +123,7 @@ class Player(pg.sprite.Sprite):
                         self.pos.y = lowest.rect.top
                         self.vel.y = 0
                         self.jumping = False
-                
-            
+                     
 
     def powerup_collision(self):
         pow_hits = pg.sprite.spritecollide(self, self.game.powerups, True)
@@ -129,6 +135,9 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
         keys = pg.key.get_pressed()
+        if keys[pg.K_s]:
+            self.duck("right")
+            self.ducking = True
         if keys[pg.K_d]:
             self.acc.x = MAIN_ACC
         if keys[pg.K_a]:
@@ -144,13 +153,19 @@ class Player(pg.sprite.Sprite):
     def animate(self):
         now = pg.time.get_ticks()
         if self.jumping:
-            self.image = self.jump_frame[0]
+            if self.vel.x> 0:
+                self.image = self.jump_frame[0]
+                self.image.set_colorkey("black")
+                
+            elif self.vel.x < 0:
+                self.image = self.jump_frame[-1]
+                self.image.set_colorkey("black")
         if self.vel.x !=0:
             self.walking = True 
         else:
             self.walking = False 
         if self.walking:
-            if now -self.last_update > 200:
+            if now -self.last_update > 100:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
                 bottom = self.rect.bottom
@@ -158,10 +173,12 @@ class Player(pg.sprite.Sprite):
                     self.image = self.walk_frames_r[self.current_frame]
                 else:
                     self.image = self.walk_frames_l[self.current_frame]
+                    #if self.ducking:
+                     #   self.duck("left")
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         if not self.jumping and not self.walking:
-            if now - self.last_update > 350:
+            if now - self.last_update > 200:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
                 bottom = self.rect.bottom
@@ -169,9 +186,24 @@ class Player(pg.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         self.mask = pg.mask.from_surface(self.image)
+            
     def draw_healthbar(self):
         pg.draw.rect(self.game.screen, (255, 0,0), (self.rect.x, self.rect.y - 20, self.rect.width, 10 ))
         pg.draw.rect(self.game.screen, (00, 255,0), (self.rect.x, self.rect.y - 20, self.rect.width * (1-((self.max_health - self.health))/self.max_health), 10 ))
+    def duck(self, dir="right"):
+        self.pos.y += 20
+        if dir == "right":
+            self.image = self.duck_frame[0]
+            self.image.set_colorkey("black")
+        elif dir == "left":
+            self.image = self.duck_frame[1]
+            self.image.set_colorkey("black")
+        else:
+            self.image = self.duck_frame[0]
+            self.image.set_colorkey("black")
+
+
+
 
 
 
@@ -196,6 +228,7 @@ class EnemyFly(pg.sprite.Sprite):
         self.dy = 0.5
 
     def update(self):
+        self.bullet_colission()
         self.rect.x -= self.vx 
         self.mask = pg.mask.from_surface(self.image)
         if self.rect.x < WIN_WIDTH-1000:
@@ -213,6 +246,10 @@ class EnemyFly(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = center
         self.rect.y += self.vy
+    def bullet_colission(self):
+        hit = pg.sprite.spritecollide(self, self.game.bullets, True)
+        if hit:
+            self.kill()
 
 
 

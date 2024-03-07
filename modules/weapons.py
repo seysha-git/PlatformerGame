@@ -22,10 +22,6 @@ class Bullet(pg.sprite.Sprite):
         self.dx = math.cos(angle)*speed
         self.dy = math.sin(angle)*speed
 
-        
-
-
-
     def move(self):
         self.x = self.x + self.dx
         self.y = self.y + self.dy
@@ -35,8 +31,8 @@ class Bullet(pg.sprite.Sprite):
         self.move()
         self.check_colission()
     def check_colission(self):
-        hits = pg.sprite.spritecollide(self, self.game.enemies, True) #or pg.sprite.spritecollide(self, self.game.ground_platforms, True)
-        if hits:
+        hit = pg.sprite.spritecollide(self, self.game.walls, False)
+        if hit:
             self.kill()
         
         

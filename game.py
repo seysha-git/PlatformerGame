@@ -88,7 +88,7 @@ class Game:
         self.all_sprites.update()
                
     def scroll_page(self):
-        if self.player.rect.top <= 50:
+        if self.player.rect.y <= 200:
             print("scroll screen")
             self.player.pos.y += abs(self.player.acc.y + 2)
             for p in self.scroll_items:
@@ -112,13 +112,14 @@ class Game:
                     self.playing = False
                 self.running = False 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
+                if event.key == pg.K_w or event.key == pg.K_SPACE:
                     self.player.jump()
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()     
                 Bullet(self, "red", self.player.rect.centerx, self.player.rect.centery, BULLET_WIDTH,BULLET_HEIGHT, 6, x,y)
+            
     def draw(self):
-        self.screen.fill((48, 60, 79))#self.screen.blit(self.BG, (0,0))
+        self.screen.fill((50, 168, 82))#self.screen.blit(self.BG, (0,0))
         self.all_sprites.draw(self.screen)
         self.navbar()
 
@@ -177,7 +178,7 @@ class Game:
         max_health = 100
         health = 100
         navbar_rect = pg.Rect(0,0, WIN_WIDTH, 80)
-        pg.draw.rect(self.screen, (73, 118, 191), navbar_rect)
+        pg.draw.rect(self.screen, (77, 219, 115), navbar_rect)
         self.screen.blit(self.get_logo("main"), (30,20))
         self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
         pg.draw.rect(self.screen, (255, 0,0), (WIN_WIDTH//2-45, 65, 120, 10 ))

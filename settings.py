@@ -46,7 +46,7 @@ MAIN_CHAR_WIDTH, MAIN_CHAR_HEIGHT = 50,100
 MAIN_ACC = 5
 MAIN_FRICTION = 0.12
 MAIN_GRAVITY = 0.8
-MAIN_JUMP_VEL = 15
+MAIN_JUMP_VEL = 14
 
 class Spritesheet:
     def __init__(self, filename):
