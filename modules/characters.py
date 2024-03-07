@@ -1,6 +1,8 @@
 import pygame as pg
 from settings import *
+import sys
 from modules.platforms import MovingJumpPlatform
+#from modules.weapons import Bullet
 import random as rd
 vec = pg.math.Vector2
 
@@ -68,11 +70,24 @@ class Player(pg.sprite.Sprite):
         if self.health < 10:
             print("dead")
             self.game.playing = False
+    def shoot_bullets(self):
+        for event in pg.event.get():
+            if event.type == pg.MOUSEBUTTONDOWN:
+                x,y = pg.mouse.get_pos()     
+                print(x,y)
+    def hit_lava(self):
+        hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
+
+        if hit:
+            for i in hit:
+                if i.type == "lava":
+                    sys.exit()
     def update(self):
         #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
         self.animate()
         self.enemies_collision()
         self.move()
+        self.hit_lava()
         self.check_alive()
         if self.vel.y > 0:
             self.ground_plat_collission()
@@ -85,7 +100,6 @@ class Player(pg.sprite.Sprite):
                 self.pos.y = hits[0].rect.top
                 self.vel.y = 0
                 self.jumping = False
-            print("move on the new thing")
     def jump_plat_colission(self):
         jump_plat_hit = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
         if jump_plat_hit:
@@ -159,6 +173,10 @@ class Player(pg.sprite.Sprite):
         pg.draw.rect(self.game.screen, (255, 0,0), (self.rect.x, self.rect.y - 20, self.rect.width, 10 ))
         pg.draw.rect(self.game.screen, (00, 255,0), (self.rect.x, self.rect.y - 20, self.rect.width * (1-((self.max_health - self.health))/self.max_health), 10 ))
 
+
+
+
+
 class EnemyFly(pg.sprite.Sprite):
     def __init__(self, game, x,y):
         self._layer = ENEMIES_LAYER
@@ -173,13 +191,28 @@ class EnemyFly(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.vy = rd.randrange(2,4)
+        self.vx = rd.randrange(4,8)
+        self.vy = 0
+        self.dy = 0.5
 
     def update(self):
-        self.rect.y -= self.vy 
+        self.rect.x -= self.vx 
         self.mask = pg.mask.from_surface(self.image)
-        if self.rect.top > WIN_HEIGHT + 100:
+        if self.rect.x < WIN_WIDTH-1000:
             self.kill()
+            print("kill")
+
+        self.vy += self.dy
+        if self.vy > 4 or self.vy < -5:
+            self.dy *= -1
+        center = self.rect.center
+        if self.dy < 0:
+            self.image = self.image_up
+        else:
+            self.image = self.image_down
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.rect.y += self.vy
 
 
 

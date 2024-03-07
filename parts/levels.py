@@ -25,7 +25,6 @@ class Level:
                 self.game.player.rect.x = self.game.player.pos.x
     def check_wall_collision_y(self):
         wall_hits = pg.sprite.spritecollide(self.game.player, self.game.walls, False)
-        self.on_ground = False 
         #self.game.player.rect.bottom += 1
         for tile in wall_hits:
             if self.game.player.vel.y < 0:
@@ -63,7 +62,7 @@ class Level:
         for i in range(1,self.ground_length):
            GroundPlatform(self.game, i*70- 70, WIN_HEIGHT-30)
         for i in range(1,self.ground_length):
-           WallPlatform(self.game, i*70- 70, 80)
+           WallPlatform(self.game, i*70- 70, 40)
     def boost_platform(self):
         hits = pg.sprite.spritecollide(self.game.player, self.game.boosters, False)
         if hits:

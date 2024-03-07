@@ -7,6 +7,7 @@ import random as rd
 class Platform(pg.sprite.Sprite):
     def __init__(self, game, x,y, type="ground"):
         self._layer = PLATFORM_LAYER
+        self.type = type
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -21,7 +22,11 @@ class GroundPlatform(Platform):
         super().__init__(game, x,y,type)
         self.groups = game.all_sprites, game.ground_platforms
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = self.game.spritesheet_platform.get_image(72,288,70,70)
+        self.images = {
+             "ground": self.game.spritesheet_platform.get_image(504,288,70,70),
+             "lava": self.game.spritesheet_platform.get_image(504, 0,70,30),
+        }
+        self.image = self.images[type]
         self.image.set_colorkey("black")
 
 
@@ -32,7 +37,8 @@ class BackgroundPlatform(Platform):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.images = {
-             "sign_left": self.game.spritesheet_platform.get_image(288, 216,70,70),
+             "door_mid": self.game.spritesheet_platform.get_image(648, 432,70,70),
+             "door_top": self.game.spritesheet_platform.get_image(648, 360,70,70),
              "cloud": self.game.spritesheet_items.get_image(0, 146,128,71), 
              "water": self.game.spritesheet_platform.get_image(504, 216,70,70),
              "flag_green":self.game.spritesheet_items.get_image(216,432,70,70), 

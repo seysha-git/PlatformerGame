@@ -1,7 +1,10 @@
 from game import *
 
-g = Game() 
+g = Game()
 #ag.show_start_screen()
-while g.running:
+while g.running:    
     g.new()
+
+
+
 

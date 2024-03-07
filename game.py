@@ -3,6 +3,7 @@ import sys
 from settings import *
 from modules.characters import *
 from modules.guide_items import *
+from modules.weapons import Bullet
 from os import path
 from parts.part1 import Part1
 pg.font.init()
@@ -36,7 +37,7 @@ class Game:
         self.ground_platforms = pg.sprite.Group()
         self.jump_platforms = pg.sprite.Group()
         self.background_sprites = pg.sprite.Group()
-
+        self.bullets = pg.sprite.Group()
         self.powerups = pg.sprite.Group()
         self.logos =pg.sprite.Group()
         self.boosters = pg.sprite.Group()
@@ -112,8 +113,10 @@ class Game:
                 self.running = False 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
-                    self.player.jump()        
-            
+                    self.player.jump()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                x,y = pg.mouse.get_pos()     
+                Bullet(self, "red", self.player.rect.centerx, self.player.rect.centery, BULLET_WIDTH,BULLET_HEIGHT, 6, x,y)
     def draw(self):
         self.screen.fill((48, 60, 79))#self.screen.blit(self.BG, (0,0))
         self.all_sprites.draw(self.screen)
