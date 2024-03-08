@@ -6,7 +6,6 @@ from modules.guide_items import *
 from modules.weapons import Bullet
 from os import path
 from parts.part1 import Part1
-from parts.part2 import Part2
 pg.font.init()
 
 
@@ -30,7 +29,7 @@ class Game:
 
         self.check_point_active = False
 
-        self.levels = [Part1(self), Part2(self)]
+        self.levels = [Part1(self)]
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -47,11 +46,13 @@ class Game:
         self.switches = pg.sprite.Group()
         self.spikes = pg.sprite.Group()
         self.doors = pg.sprite.Group()
+        self.princesses = pg.sprite.Group()
         
         self.grounds = pg.sprite.Group()
         self.check_points = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.player = Player(self)
+        self.princess = Princess(self)
 
 
         for lvl in self.levels:
@@ -68,6 +69,7 @@ class Game:
         self.spritesheet_items = Spritesheet(path.join(img_dir, SPRITESHEET_ITEMS))
         self.spritesheet_enemies = Spritesheet(path.join(img_dir, SPRITESHEET_ENEMIES))
         self.spritesheet_huds = Spritesheet(path.join(img_dir, SPRITESHEET_HUD))
+        self.spritesheet_princess = Spritesheet(path.join(img_dir, SPRITESHEET_PRINCESS))
         self.snd_dir = path.join(self.dir, "sounds")
         self.jump_sound = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav"))
         self.gems_sound = pg.mixer.Sound(path.join(self.snd_dir, "boost.wav"))
@@ -83,12 +85,8 @@ class Game:
         pg.mixer.music.fadeout(500)
     def update(self):
         self.player.not_hit_portal = True
-        self.scroll_items = list(self.ground_platforms) \
-            + list(self.jump_platforms) + list(self.background_sprites) \
-            + list(self.walls) + list(self.check_points) + list(self.enemies)\
-            + list(self.powerups) + list(self.spikes) +  list(self.switches) + list(self.roofs)\
-            + list(self.doors)
-        self.scroll_page() 
+        self.scroll_items = [item for item in self.all_sprites if not isinstance(item, Player)]
+        #self.scroll_page() 
         for lvl in self.levels:
             lvl.update()
         self.all_sprites.update()
@@ -181,14 +179,14 @@ class Game:
     def navbar(self):
         max_health = 100
         health = 100
-        navbar_rect = pg.Rect(0,0, WIN_WIDTH, 80)
+        navbar_rect = pg.Rect(0,0, WIN_WIDTH, 70)
         pg.draw.rect(self.screen, (77, 219, 115), navbar_rect)
         self.screen.blit(self.get_logo("main"), (30,20))
         self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
-        pg.draw.rect(self.screen, (255, 0,0), (WIN_WIDTH//2-45, 65, 120, 10 ))
-        pg.draw.rect(self.screen, (00, 255,0), (WIN_WIDTH//2-45, 65, 120 * (1-((max_health - health))/max_health), 10 ))
-        pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-250, 20, 200, 50), 0, 5)
-        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-200, 25)
+        #pg.draw.rect(self.screen, (255, 0,0), (WIN_WIDTH//2-45, 65, 120, 10 ))
+        #pg.draw.rect(self.screen, (00, 255,0), (WIN_WIDTH//2-45, 65, 120 * (1-((max_health - health))/max_health), 10 ))
+        pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-250, 10, 200, 50), 0, 5)
+        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-210, 18)
 
         #self.draw_text(f"Level {0}/{5}", 35, "white", 50, 30)
 

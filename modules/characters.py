@@ -205,6 +205,19 @@ class Player(pg.sprite.Sprite):
 
 
 
+class Princess(pg.sprite.Sprite):
+    def __init__(self, game):
+        self._layer = PLAYER_LAYER
+        self.groups = game.all_sprites, game.princesses
+        self.game = game
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.image = self.game.spritesheet_princess.get_image( 0, 196, 66, 92)
+        self.image.set_colorkey("black")
+        self.rect = self.image.get_rect()
+        self.rect.x = 100
+        self.rect.y = WIN_HEIGHT//2
+
+        
 
 
 
@@ -231,12 +244,12 @@ class EnemyFly(pg.sprite.Sprite):
         self.bullet_colission()
         self.rect.x -= self.vx 
         self.mask = pg.mask.from_surface(self.image)
-        if self.rect.x < WIN_WIDTH-1000:
+        if self.rect.x < WIN_WIDTH-900:
             self.kill()
             print("kill")
 
         self.vy += self.dy
-        if self.vy > 4 or self.vy < -5:
+        if self.vy > 5 or self.vy < -5:
             self.dy *= -1
         center = self.rect.center
         if self.dy < 0:

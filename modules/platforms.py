@@ -25,8 +25,8 @@ class GroundPlatform(Platform):
         self.images = {
              "ground": self.game.spritesheet_platform.get_image(648,0,70,70),
              "half_ground": self.game.spritesheet_platform.get_image(576,432,70,70),
-             "lava": self.game.spritesheet_platform.get_image(432, 864,70,30),
-             "wood_box": self.game.spritesheet_platform.get_image(0,864,70,70), 
+             "lava": self.game.spritesheet_platform.get_image(504, 0,70,30),
+             "tresure": self.game.spritesheet_huds.get_image(146,147,44,40), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")

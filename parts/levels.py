@@ -55,10 +55,10 @@ class Level:
         
         self.enemies_timer = 0 
         self.platform_timer = 0
-        for i in range(1,25):
-            WallPlatform(self.game,WIN_WIDTH-60, 70*i-400)
-        for i in range(1,25):
-            WallPlatform(self.game,0, 70*i-400)
+        for i in range(1,15):
+            WallPlatform(self.game,WIN_WIDTH-60, 70*i-180)
+        for i in range(1,15):
+            WallPlatform(self.game,0, 70*i-180)
         for i in range(1,self.ground_length):
            GroundPlatform(self.game, i*70- 70, WIN_HEIGHT-30)
         for i in range(1,self.ground_length):

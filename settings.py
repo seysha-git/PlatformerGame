@@ -17,6 +17,7 @@ SPRITESHEET_PLATFORM = "tiles_spritesheet.png"
 SPRITESHEET_ITEMS = "items_spritesheet.png"
 SPRITESHEET_ENEMIES = "enemies_spritesheet.png"
 SPRITESHEET_HUD = "hud_spritesheet.png"
+SPRITESHEET_PRINCESS = "p3_spritesheet.png"
 
 SCREEN_SCROLL_SPEED = 10
 
