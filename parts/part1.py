@@ -17,51 +17,61 @@ class Part1(Level):
         for i in range(1,7):
             GroundPlatform(self.game, 70*i, WIN_HEIGHT-320)
         for i in range(1,11): # Nest nederste taket
-            WallPlatform(self.game, i*70+420, WIN_HEIGHT-320)
+            RoofPlatform(self.game, i*70+420, WIN_HEIGHT-320) #roof
         for i in range(1,5): #dør gulvet
             WallPlatform(self.game,WIN_WIDTH-380, 70*i+270)
         for i in range(1,3):
             GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, WIN_HEIGHT//4+50)
-        for i in range(1,6):
-            WallPlatform(self.game, 430, 70*i-20)
+        for i in range(1,5):
+            WallPlatform(self.game, 420, 70*i-20)
+        RoofPlatform(self.game,420, 330)
         for i in range(1,5):
            GroundPlatform(self.game, 70*i, 330)
         #for i in range(1,10):
         #    GroundPlatform(self.game, 490 + 70*i-70, WIN_HEIGHT-380, "lava")
 
-        JumpPlatform(self.game, WIN_WIDTH-140, WIN_HEIGHT-350, 0)
-        JumpPlatform(self.game, WIN_WIDTH-140, WIN_HEIGHT-150, 0)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-350, 0)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-150, 0)
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-290, 0)
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0)
-        JumpPlatform(self.game, WIN_WIDTH-140, WIN_HEIGHT-520, 0)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-520, 0)
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0)
 
         BackgroundPlatform(self.game, 70, 260, "door_mid")
         BackgroundPlatform(self.game, 70, 260-70, "door_top")
         
-        Booster(self.game, 75, 510)
+        Switch(self.game, 75, 510)
 
         JumpPlatform(self.game, WIN_WIDTH//2, WIN_HEIGHT-400, 0)
         JumpPlatform(self.game, WIN_WIDTH//2+120, WIN_HEIGHT-500, 0)
         JumpPlatform(self.game, WIN_WIDTH//2-120, WIN_HEIGHT-500, 0)
         JumpPlatform(self.game, WIN_WIDTH//3, WIN_HEIGHT-400, 0)
 
+        GroundPlatform(self.game, 350, 330, "wood_box")
+        #GroundPlatform(self.game, 350, 330-70, "wood_box")
         #print(f"Lenght of game enemies: {self.game.enemies}")
 
     def new(self): 
         super().new()
         self.background()
+    def enter_door(self):
+        hits = pg.sprite.spritecollide(self.game.player, self.game.background_sprites, False)
+        if hits:
+            if hits[0].type == "door_mid":
+                print("move up")
+                self.game.player.pos.y -= 400
+                self.game.top_scroll = 400
+                #self.game.scroll_page(400)
     def update(self):
         super().update()
+        self.enter_door()
         #self.create_enemies()
-        self.check_colission()
+        #self.check_colission()
     def create_enemies(self):
         while len(list(self.game.enemies)) < 2:
             EnemyFly(self.game,  WIN_WIDTH-450,rd.randint(WIN_HEIGHT-600, WIN_HEIGHT-400))
-    def check_colission(self):
-        hit = pg.sprite.spritecollide(self.game.player, self.game.boosters, False)
-        if hit:
-            GroundPlatform(self.game, 350, 535, "wood_box")
+    
+            #GroundPlatform(self.game, 350, 535, "wood_box")
             #GroundPlatform(self.game, 350, 530-70, "wood_box")
 
 

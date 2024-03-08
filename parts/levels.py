@@ -24,18 +24,19 @@ class Level:
                 self.game.player.pos.x = tile.rect.right + self.game.player.rect.w-30
                 self.game.player.rect.x = self.game.player.pos.x
     def check_wall_collision_y(self):
-        wall_hits = pg.sprite.spritecollide(self.game.player, self.game.walls, False)
+        wall_hits = pg.sprite.spritecollide(self.game.player, self.game.roofs, False)
         #self.game.player.rect.bottom += 1
         for tile in wall_hits:
+            if self.game.player.vel.y > 0:
+                self.game.player.vel.y = 0
             if self.game.player.vel.y < 0:
-                print("x")
                 self.game.player.vel.y = 0
                 self.game.player.pos.y = tile.rect.bottom + self.game.player.rect.height
                 self.game.player.rect.bottom = self.game.player.pos.y
                 #print("hit")
     def update(self):
         self.check_wall_collision_x()
-        #self.check_wall_collision_y()
+        self.check_wall_collision_y()
         """
         if self.game.check_point_active:
             current_time = pg.time.get_ticks()
@@ -54,15 +55,14 @@ class Level:
         
         self.enemies_timer = 0 
         self.platform_timer = 0
-
-        for i in range(1,15):
-            WallPlatform(self.game,WIN_WIDTH-70, 70*i-180)
-        for i in range(1,15):
-            WallPlatform(self.game,0, 70*i-180)
+        for i in range(1,25):
+            WallPlatform(self.game,WIN_WIDTH-60, 70*i-400)
+        for i in range(1,25):
+            WallPlatform(self.game,0, 70*i-400)
         for i in range(1,self.ground_length):
            GroundPlatform(self.game, i*70- 70, WIN_HEIGHT-30)
         for i in range(1,self.ground_length):
-           WallPlatform(self.game, i*70- 70, 30)
+           RoofPlatform(self.game, i*70- 70, 30)
     def boost_platform(self):
         hits = pg.sprite.spritecollide(self.game.player, self.game.boosters, False)
         if hits:

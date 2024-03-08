@@ -6,6 +6,7 @@ from modules.guide_items import *
 from modules.weapons import Bullet
 from os import path
 from parts.part1 import Part1
+from parts.part2 import Part2
 pg.font.init()
 
 
@@ -24,25 +25,29 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.load_data()
-
+        self.top_scroll = 200
         self.scroll_distance = 0
 
         self.check_point_active = False
 
-        self.levels = [Part1(self)]
+        self.levels = [Part1(self), Part2(self)]
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
 
         self.ground_platforms = pg.sprite.Group()
+        self.walls = pg.sprite.Group()
+        self.roofs = pg.sprite.Group()
         self.jump_platforms = pg.sprite.Group()
         self.background_sprites = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.powerups = pg.sprite.Group()
         self.logos =pg.sprite.Group()
-        self.boosters = pg.sprite.Group()
+        
+        self.switches = pg.sprite.Group()
         self.spikes = pg.sprite.Group()
-        self.walls = pg.sprite.Group()
+        self.doors = pg.sprite.Group()
+        
         self.grounds = pg.sprite.Group()
         self.check_points = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
@@ -81,20 +86,19 @@ class Game:
         self.scroll_items = list(self.ground_platforms) \
             + list(self.jump_platforms) + list(self.background_sprites) \
             + list(self.walls) + list(self.check_points) + list(self.enemies)\
-            + list(self.powerups) + list(self.spikes) +  list(self.boosters)
+            + list(self.powerups) + list(self.spikes) +  list(self.switches) + list(self.roofs)\
+            + list(self.doors)
         self.scroll_page() 
         for lvl in self.levels:
             lvl.update()
         self.all_sprites.update()
                
     def scroll_page(self):
-        if self.player.rect.y <= 200:
-            print("scroll screen")
+        if self.player.rect.y <= self.top_scroll:
             self.player.pos.y += abs(self.player.acc.y + 2)
             for p in self.scroll_items:
                 p.rect.y += abs(self.player.acc.y + 2)
         if self.player.rect.top >= WIN_HEIGHT-100:
-            print("scroll screen")
             self.player.pos.y -= abs(self.player.acc.y + 2)
             for p in self.scroll_items:
                 p.rect.y -= abs(self.player.acc.y + 2)

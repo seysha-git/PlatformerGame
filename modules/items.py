@@ -13,27 +13,40 @@ class PlatItem(pg.sprite.Sprite):
         self.rect.bottom = self.plat.rect.top
 
 
-class Booster(pg.sprite.Sprite):
+class Switch(pg.sprite.Sprite):
     def __init__(self, game, x,y):
         self.game = game
-        self.groups = game.all_sprites, game.boosters
+        self.groups = game.all_sprites, game.switches
         pg.sprite.Sprite.__init__(self, self.groups)
         self.images = [
             self.game.spritesheet_items.get_image(504,216,70,70),
             self.game.spritesheet_items.get_image(491,0,70,70)
         ] 
         self.active_image = 0
-        self.image = self.images[self.active_image]
-        self.image.set_colorkey("black")
+        self.draw()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+    def draw(self):
+        self.image = self.images[self.active_image]
+        self.image.set_colorkey("black")
+    def update(self):
+        hit = pg.sprite.collide_mask(self, self.game.player)
+        if hit:
+            self.animate()
+            for plat in self.game.ground_platforms:
+                if plat.type == "wood_box":
+                    if plat.rect.y <= WIN_HEIGHT-375:
+                        plat.rect.y += 3
+            
     def animate(self):
         print("animate")
         if self.active_image == 0:
             self.active_image = 1
-        elif self.active_image == 1:
-            self.active_image = 0
+       ## elif self.active_image == 1:
+        #    self.active_image = 0
+        self.draw()
+        
     
 class Pow(PlatItem):
     def __init__(self, game, plat,type="gems"):

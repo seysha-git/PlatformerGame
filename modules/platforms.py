@@ -24,6 +24,7 @@ class GroundPlatform(Platform):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.images = {
              "ground": self.game.spritesheet_platform.get_image(648,0,70,70),
+             "half_ground": self.game.spritesheet_platform.get_image(576,432,70,70),
              "lava": self.game.spritesheet_platform.get_image(432, 864,70,30),
              "wood_box": self.game.spritesheet_platform.get_image(0,864,70,70), 
         }
@@ -55,6 +56,16 @@ class WallPlatform(Platform):
         self.game = game
         self.image = self.game.spritesheet_platform.get_image(0,432,70,70)
         self.image.set_colorkey("black")
+class RoofPlatform(Platform):
+    def __init__(self, game,x,y):
+        super().__init__(game, x,y)
+        self.groups = game.all_sprites, game.roofs
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = self.game.spritesheet_platform.get_image(0,432,70,70)
+        self.image.set_colorkey("black")
+        
+
 class JumpPlatform(Platform):
     def __init__(self, game, x,y, time):
         super().__init__(game, x,y)

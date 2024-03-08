@@ -25,7 +25,7 @@ class Player(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
-        self.pos = vec(WIN_WIDTH//2-400, WIN_HEIGHT-70) #WIN_WIDTH+400
+        self.pos = vec(199, WIN_HEIGHT-70) #WIN_WIDTH+400
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.health = 100
