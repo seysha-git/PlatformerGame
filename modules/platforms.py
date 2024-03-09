@@ -26,7 +26,8 @@ class GroundPlatform(Platform):
              "ground": self.game.spritesheet_platform.get_image(648,0,70,70),
              "half_ground": self.game.spritesheet_platform.get_image(576,432,70,70),
              "lava": self.game.spritesheet_platform.get_image(504, 0,70,30),
-             "tresure": self.game.spritesheet_huds.get_image(146,147,44,40), 
+             
+             "half_up": self.game.spritesheet_platform.get_image(576,720,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")
@@ -44,6 +45,8 @@ class BackgroundPlatform(Platform):
              "cloud": self.game.spritesheet_items.get_image(0, 146,128,71), 
              "water": self.game.spritesheet_platform.get_image(504, 216,70,70),
              "flag_green":self.game.spritesheet_items.get_image(216,432,70,70), 
+             "tresure": self.game.spritesheet_huds.get_image(146,147,44,40), 
+             "star": self.game.spritesheet_items.get_image(504,288,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")

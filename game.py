@@ -3,9 +3,9 @@ import sys
 from settings import *
 from modules.characters import *
 from modules.guide_items import *
-from modules.weapons import Bullet
+from modules.weapons import PlayerBullet
 from os import path
-from parts.part1 import Part1
+from game_ground import GameGround
 pg.font.init()
 
 
@@ -29,7 +29,7 @@ class Game:
 
         self.check_point_active = False
 
-        self.levels = [Part1(self)]
+        self.game_ground = GameGround(self)
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -39,7 +39,8 @@ class Game:
         self.roofs = pg.sprite.Group()
         self.jump_platforms = pg.sprite.Group()
         self.background_sprites = pg.sprite.Group()
-        self.bullets = pg.sprite.Group()
+        self.player_bullets = pg.sprite.Group()
+        self.course_bullets = pg.sprite.Group()
         self.powerups = pg.sprite.Group()
         self.logos =pg.sprite.Group()
         
@@ -55,9 +56,7 @@ class Game:
         self.princess = Princess(self)
 
 
-        for lvl in self.levels:
-            lvl.new()
-        
+        self.game_ground.new()
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
 
@@ -87,8 +86,7 @@ class Game:
         self.player.not_hit_portal = True
         self.scroll_items = [item for item in self.all_sprites if not isinstance(item, Player)]
         #self.scroll_page() 
-        for lvl in self.levels:
-            lvl.update()
+        self.game_ground.update()
         self.all_sprites.update()
                
     def scroll_page(self):
@@ -118,13 +116,13 @@ class Game:
                     self.player.jump()
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()     
-                Bullet(self, "red", self.player.rect.centerx, self.player.rect.centery, BULLET_WIDTH,BULLET_HEIGHT, 6, x,y)
-            
+                PlayerBullet(self, self.player.rect.centerx, self.player.rect.centery, 6, x,y)
     def draw(self):
-        self.screen.fill((50, 168, 82))#self.screen.blit(self.BG, (0,0))
+        self.screen.fill((50, 168, 82))
+        self.player.draw_healthbar()
+        self.game_ground.draw()
         self.all_sprites.draw(self.screen)
         self.navbar()
-
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")

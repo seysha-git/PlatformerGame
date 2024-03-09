@@ -30,6 +30,17 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,0)
         self.health = 100
         self.max_health = 100
+    def update(self):
+        #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
+        self.animate()
+        self.enemies_collision()
+        self.move()
+        self.hit_lava()
+        self.check_alive()
+        if self.vel.y > 0:
+            self.ground_plat_collission()
+            self.jump_plat_colission()
+            self.powerup_collision()
     def load_images(self):
         self.standing_frames = [
             self.game.spritesheet_char.get_image(0, 196, 66, 92),
@@ -77,11 +88,6 @@ class Player(pg.sprite.Sprite):
         if self.health < 10:
             print("dead")
             self.game.playing = False
-    def shoot_bullets(self):
-        for event in pg.event.get():
-            if event.type == pg.MOUSEBUTTONDOWN:
-                x,y = pg.mouse.get_pos()     
-                print(x,y)
     def hit_lava(self):
         hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
 
@@ -89,17 +95,6 @@ class Player(pg.sprite.Sprite):
             for i in hit:
                 if i.type == "lava":
                     print("dead")
-    def update(self):
-        #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
-        self.animate()
-        self.enemies_collision()
-        self.move()
-        self.hit_lava()
-        self.check_alive()
-        if self.vel.y > 0:
-            self.ground_plat_collission()
-            self.jump_plat_colission()
-            self.powerup_collision()
     def ground_plat_collission(self):
         hits = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         if hits:
@@ -142,11 +137,8 @@ class Player(pg.sprite.Sprite):
             self.acc.x = MAIN_ACC
         if keys[pg.K_a]:
             self.acc.x = -MAIN_ACC
-        
         #self.acc.x += self.vel.x# * -MAIN_FRICTION
         self.vel += self.acc
-        if abs(self.vel.x) < 0.1:
-            self.vel.x = 0 
         self.pos += self.vel + 0.5*self.acc
         self.rect.midbottom = self.pos
             

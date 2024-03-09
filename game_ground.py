@@ -1,0 +1,123 @@
+import pygame as pg
+from settings import *
+from modules.items import *
+from modules.platforms import *
+from modules.characters import *
+from modules.guide_items import *
+from modules.weapons import CourseBullet
+
+
+class GameGround:
+    def __init__(self, game):
+        self.scroll_timer = 0
+        self.scroll_duration = 1300
+        self.game = game
+        self.ground_length = 23
+        self.water_length = 14
+        self.spawn_course_bullets = False
+        self.check_point_active_2 = False
+    def update(self):
+        self.check_wall_collision_x()
+        self.check_wall_collision_y()
+        self.create_bullets()
+        #self.create_enemies()
+    def new(self):
+        self.side_field_backgrounds()
+        self.start_runner_room()
+        self.jump_gun_room()
+        self.question_room()
+        self.shoot_room()
+    def draw(self):
+        self.draw_course_gun()
+        #CourseBullet(self.game, WIN_WIDTH-100, 80, rd.randint(1,4))
+
+    def check_wall_collision_x(self):
+        wall_hits = pg.sprite.spritecollide(self.game.player, self.game.walls, False)
+        for tile in wall_hits:
+            if self.game.player.vel.x > 0:
+                self.game.player.pos.x = tile.rect.left - self.game.player.rect.w+30
+                self.game.player.rect.x = self.game.player.pos.x
+            elif self.game.player.vel.x < 0:
+                self.game.player.pos.x = tile.rect.right + self.game.player.rect.w-30
+                self.game.player.rect.x = self.game.player.pos.x
+    def check_wall_collision_y(self):
+        wall_hits = pg.sprite.spritecollide(self.game.player, self.game.roofs, False)
+        #self.game.player.rect.bottom += 1
+        for tile in wall_hits:
+            if self.game.player.vel.y > 0:
+                self.game.player.vel.y = 0
+            if self.game.player.vel.y < 0:
+                self.game.player.vel.y = 0
+                self.game.player.pos.y = tile.rect.bottom + self.game.player.rect.height
+                self.game.player.rect.bottom = self.game.player.pos.y
+                #print("hit")   
+    def side_field_backgrounds(self):
+        for i in range(1,15):
+            WallPlatform(self.game,WIN_WIDTH-60, 70*i-180)
+        for i in range(1,15):
+            WallPlatform(self.game,0, 70*i-180)
+        for i in range(1,self.ground_length):
+           GroundPlatform(self.game, i*70- 70, WIN_HEIGHT-30)
+        for i in range(1,self.ground_length):
+           RoofPlatform(self.game, i*70- 70, 30)
+    def handle_checkpoint_collisions(self):
+        hit = pg.sprite.spritecollide(self.game.player, self.game.check_points, True)
+        if hit:
+            print("hit")
+            self.game.check_point_active = True
+            self.game.scroll_distance = 400
+            # Activate the scroll timer
+            self.scroll_timer = pg.time.get_ticks()
+    def question_room(self):
+        for i in range(1,7):
+            GroundPlatform(self.game, 70*i, WIN_HEIGHT-360)
+        for i in range(1,8):
+           WallPlatform(self.game, 495, 70*i-20)
+        for i in range(1,6):
+           GroundPlatform(self.game, 70*i, 240, "half_ground")
+        BackgroundPlatform(self.game, 300, 170, "tresure")
+        BackgroundPlatform(self.game, 75, 170, "door_mid")
+        BackgroundPlatform(self.game, 75, 170-70, "door_top")
+        BackgroundPlatform(self.game, 340, WIN_HEIGHT//2+19, "flag_green")
+    def jump_gun_room(self):
+        for i in range(1,5): #dør gulvet
+            WallPlatform(self.game,WIN_WIDTH-380, 70*i+230)
+        for i in range(1,3):
+            GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, WIN_HEIGHT//4+50)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-350, 0)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-150, 0)
+        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-290, 0)
+        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0)
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-520, 0)
+        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0)
+        self.star = BackgroundPlatform(self.game, WIN_WIDTH-400, WIN_HEIGHT-100, "star")
+
+    def start_runner_room(self):
+        for i in range(1,11): # Nest nederste taket
+            RoofPlatform(self.game, i*70+420, WIN_HEIGHT-360) #roof
+    def shoot_room(self):
+        for i in range(1,9):
+            GroundPlatform(self.game, 490 + 70*i, 515, "lava")
+        JumpPlatform(self.game, WIN_WIDTH//2, WIN_HEIGHT-500, 0)
+        JumpPlatform(self.game, WIN_WIDTH//2+120, WIN_HEIGHT-600, 0)
+        JumpPlatform(self.game, WIN_WIDTH//2-120, WIN_HEIGHT-650, 0)
+    def create_enemies(self):
+        while len(list(self.game.enemies)) < 2:
+            EnemyFly(self.game,  WIN_WIDTH-450,rd.randint(WIN_HEIGHT-600, WIN_HEIGHT-500))
+    
+            #GroundPlatform(self.game, 350, 535, "wood_box")
+            #GroundPlatform(self.game, 350, 530-70, "wood_box")
+    def create_bullets(self):
+        if pg.sprite.collide_mask(self.game.player, self.star):
+            self.spawn_course_bullets = True
+        if self.spawn_course_bullets:
+            while len(list(self.game.course_bullets)) < 1:
+                print("bullet")
+                CourseBullet(self.game)
+    def draw_course_gun(self):
+        pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-210,100,60,80))
+        #pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-180,80,30,30))
+        #pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-220,80,30,30))
+    
+        
+
