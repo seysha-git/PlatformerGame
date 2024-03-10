@@ -19,9 +19,9 @@ class GameGround:
         self.check_wall_collision_x()
         self.check_wall_collision_y()
         self.player_ladder_colission()
-        self.player_spike_colission()
-        self.create_bullets()
-        self.create_enemies()
+        #self.player_spike_colission()
+        #self.create_bullets()
+        #self.create_enemies()
     def new(self):
         self.side_field_backgrounds()
         self.start_runner_room()
@@ -104,12 +104,12 @@ class GameGround:
             WallPlatform(self.game,WIN_WIDTH-380, 70*i+230)
         for i in range(1,3):
             GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, WIN_HEIGHT//4+50)
-        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-350, 0)
         JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-150, 0)
-        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-290, 0)
-        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0)
-        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-520, 0)
-        JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0)
+        MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-350, 0, -1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-250, 0, 1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0, -1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-550, 0, 1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-630, 0, 1)
 
     def start_runner_room(self):
         for i in range(1,11): # Nest nederste taket
@@ -123,9 +123,9 @@ class GameGround:
         for i in range(1,3):
             for j in range(1,8):
                 WallPlatform(self.game, 500 + 70*j,WIN_HEIGHT-230+70*i)
-        Spike(self.game, 670, WIN_HEIGHT-270, 0,self.spikes_time )
-        Spike(self.game, 770, WIN_HEIGHT-270, 0, self.spikes_time)
-        Spike(self.game, 920, WIN_HEIGHT-270, 0, self.spikes_time)
+        #Spike(self.game, 670, WIN_HEIGHT-270, 0,self.spikes_time )
+        #Spike(self.game, 770, WIN_HEIGHT-270, 0, self.spikes_time)
+        #Spike(self.game, 920, WIN_HEIGHT-270, 0, self.spikes_time)
         self.star = BackgroundItem(self.game, 1150, WIN_HEIGHT-100, "star")
     def shoot_room(self):
         for i in range(1,9):

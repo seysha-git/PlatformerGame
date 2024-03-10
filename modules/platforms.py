@@ -82,17 +82,23 @@ class JumpPlatform(Platform):
 
 
 class MovingJumpPlatform(JumpPlatform):
-    def __init__(self, game, x, y, time):
+    def __init__(self, game, x, y, time, start_dir):
         super().__init__(game, x, y, time)
-        self.direction = 1
+        self.direction = start_dir
         if rd.randrange(3) < POWER_COUNT:
             Pow(self.game, self)
+    def update(self):
+        self.horizontal_movement()
     def horizontal_movement(self):
         self.rect.x += self.direction
-        now = pg.time.get_ticks()
-        if (now - self.time) // 1000 >= 3:
+        if self.rect.x > WIN_WIDTH-130:
             self.direction *= -1
-            self.time = now
+        if self.rect.x < WIN_WIDTH -310:
+            self.direction *= -1
+        #now = pg.time.get_ticks()
+        #if (now - self.time) // 1000 >= 2:
+         #   self.direction *= -1
+          #  self.time = now
                 
         
         
