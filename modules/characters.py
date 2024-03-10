@@ -258,7 +258,7 @@ class EnemyFly(pg.sprite.Sprite):
         self.rect.center = center
         self.rect.y += self.vy
     def bullet_colission(self):
-        hit = pg.sprite.spritecollide(self, self.game.bullets, True)
+        hit = pg.sprite.spritecollide(self, self.game.player_bullets, True)
         if hit:
             self.kill()
 

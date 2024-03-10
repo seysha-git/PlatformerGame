@@ -119,10 +119,10 @@ class Game:
                 PlayerBullet(self, self.player.rect.centerx, self.player.rect.centery, 6, x,y)
     def draw(self):
         self.screen.fill((50, 168, 82))
-        #self.player.draw_healthbar()
         self.game_ground.draw()
         self.all_sprites.draw(self.screen)
         self.navbar()
+        self.player.draw_healthbar()
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")

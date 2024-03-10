@@ -19,8 +19,9 @@ class GameGround:
         self.check_wall_collision_x()
         self.check_wall_collision_y()
         self.player_ladder_colission()
+        self.player_spike_colission()
         self.create_bullets()
-        #self.create_enemies()
+        self.create_enemies()
     def new(self):
         self.side_field_backgrounds()
         self.start_runner_room()
@@ -30,18 +31,25 @@ class GameGround:
     def draw(self):
         self.draw_course_gun()
         #CourseBullet(self.game, WIN_WIDTH-100, 80, rd.randint(1,4))
+    def player_spike_colission(self):
+        hits = pg.sprite.spritecollide(self.game.player, self.game.spikes, False)
+        if hits:
+            if hits[0].type == 0:
+                hits[0].kill()
+                self.game.player.health -= 20
+
     def player_ladder_colission(self):
         hits = pg.sprite.spritecollide(self.game.player, self.game.background_sprites, False)
-
-        for hit in hits:
-            if hit.type == "stairs":
-                keys = pg.key.get_pressed()
-                self.game.player.on_stairs = True
-                if keys[pg.K_w]:
-                    print("move upwards")
-                    self.game.player.vel.y -= 0.5
-            else:
-                self.game.player.on_stairs = False
+        if not hits:
+            self.game.player.on_stairs = False
+        else:
+            for hit in hits:
+                if hit.type == "stairs":
+                    keys = pg.key.get_pressed()
+                    self.game.player.on_stairs = True
+                    if keys[pg.K_w]:
+                        self.game.player.vel.y -= 0.5
+        
 
     def check_wall_collision_x(self):
         wall_hits = pg.sprite.spritecollide(self.game.player, self.game.walls, False)
@@ -115,9 +123,9 @@ class GameGround:
         for i in range(1,3):
             for j in range(1,8):
                 WallPlatform(self.game, 500 + 70*j,WIN_HEIGHT-230+70*i)
-        Spike(self.game, 570, WIN_HEIGHT-270, 0)
-        Spike(self.game, 770, WIN_HEIGHT-270, 1)
-        Spike(self.game, 920, WIN_HEIGHT-270, 0)
+        Spike(self.game, 670, WIN_HEIGHT-270, 0,self.spikes_time )
+        Spike(self.game, 770, WIN_HEIGHT-270, 0, self.spikes_time)
+        Spike(self.game, 920, WIN_HEIGHT-270, 0, self.spikes_time)
         self.star = BackgroundItem(self.game, 1150, WIN_HEIGHT-100, "star")
     def shoot_room(self):
         for i in range(1,9):
