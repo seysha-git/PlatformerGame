@@ -20,7 +20,7 @@ class GameGround:
         self.check_wall_collision_y()
         self.player_ladder_colission()
         #self.player_spike_colission()
-        #self.create_bullets()
+        self.create_bullets()
         #self.create_enemies()
     def new(self):
         self.side_field_backgrounds()
@@ -29,7 +29,8 @@ class GameGround:
         self.question_room()
         self.shoot_room()
     def draw(self):
-        self.draw_course_gun()
+        pass
+        #self.draw_course_gun()
         #CourseBullet(self.game, WIN_WIDTH-100, 80, rd.randint(1,4))
     def player_spike_colission(self):
         hits = pg.sprite.spritecollide(self.game.player, self.game.spikes, False)
@@ -79,7 +80,7 @@ class GameGround:
         for i in range(1,self.ground_length):
            GroundPlatform(self.game, i*70- 70, WIN_HEIGHT-30)
         for i in range(1,self.ground_length):
-           RoofPlatform(self.game, i*70- 70, 30)
+           RoofPlatform(self.game, i*70- 70, 20)
     def handle_checkpoint_collisions(self):
         hit = pg.sprite.spritecollide(self.game.player, self.game.check_points, True)
         if hit:
@@ -100,16 +101,16 @@ class GameGround:
         BackgroundItem(self.game, 75, 170-70, "door_top")
         BackgroundItem(self.game, 340, WIN_HEIGHT//2+19, "flag_green")
     def jump_gun_room(self):
-        for i in range(1,5): #dør gulvet
-            WallPlatform(self.game,WIN_WIDTH-380, 70*i+230)
+        for i in range(1,6): #dør gulvet
+            WallPlatform(self.game,WIN_WIDTH-380, 70*i+180)
         for i in range(1,3):
-            GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, WIN_HEIGHT//4+50)
-        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-150, 0)
-        MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-350, 0, -1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-250, 0, 1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0, -1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-550, 0, 1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-630, 0, 1)
+            GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, 210, "half_ground")
+        JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-190, 0)
+        MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-480.5, 0, -1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-320, 0, 1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0, -1)
+        #MovingJumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-650, 0, 1)
+       # MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-630, 0, 1)
 
     def start_runner_room(self):
         for i in range(1,11): # Nest nederste taket
@@ -143,7 +144,7 @@ class GameGround:
         if pg.sprite.collide_mask(self.game.player, self.star):
             self.spawn_course_bullets = True
         if self.spawn_course_bullets:
-            while len(list(self.game.course_bullets)) < 1:
+            while len(list(self.game.course_bullets)) < 2:
                 print("bullet")
                 CourseBullet(self.game)
     def draw_course_gun(self):

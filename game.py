@@ -85,7 +85,7 @@ class Game:
     def update(self):
         self.player.not_hit_portal = True
         self.scroll_items = [item for item in self.all_sprites if not isinstance(item, Player)]
-        #self.scroll_page() 
+        self.scroll_page() 
         self.game_ground.update()
         self.all_sprites.update()
                

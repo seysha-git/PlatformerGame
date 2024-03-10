@@ -123,8 +123,7 @@ class Player(pg.sprite.Sprite):
                     lowest = jump_plat_hit[0]
                 if isinstance(lowest,MovingJumpPlatform):
                     self.on_moving_plat = True
-                    if self.jumping:
-                        self.pos.x=  hit.rect.centerx
+                    self.pos.x=  lowest.rect.centerx
             if self.pos.x < lowest.rect.right + 10 \
                 and self.pos.x > lowest.rect.left - 10:
                     if self.pos.y < lowest.rect.centery:

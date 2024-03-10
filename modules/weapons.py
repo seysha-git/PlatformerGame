@@ -49,10 +49,10 @@ class CourseBullet(Bullet):
         super().__init__(game)
         self.groups = game.all_sprites, game.course_bullets
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = self.game.spritesheet_items.get_image(432, 432,70,70)
+        self.image = self.game.spritesheet_items.get_image(0,553,19,14)
         self.image.set_colorkey("black")
         self.rect = self.image.get_rect()
-        self.rect.x = WIN_WIDTH-210
+        self.rect.x = rd.randint(WIN_WIDTH-300, WIN_WIDTH-100)
         self.rect.y = 60+70
         self.speed = rd.randint(1,4)
     def move(self):
@@ -65,6 +65,7 @@ class CourseBullet(Bullet):
     def check_colission(self):
         hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         hit_player = pg.sprite.collide_mask(self, self.game.player)
+        #hit_jump_platform = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
         if hit:
             self.kill()
         if hit_player:
