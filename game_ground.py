@@ -9,8 +9,7 @@ from modules.weapons import CourseBullet
 
 class GameGround:
     def __init__(self, game):
-        self.scroll_timer = 0
-        self.scroll_duration = 1300
+        self.spikes_time = 0
         self.game = game
         self.ground_length = 23
         self.water_length = 14
@@ -103,17 +102,23 @@ class GameGround:
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0)
         JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-520, 0)
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0)
-        self.star = BackgroundItem(self.game, WIN_WIDTH-400, WIN_HEIGHT-100, "star")
 
     def start_runner_room(self):
         for i in range(1,11): # Nest nederste taket
             RoofPlatform(self.game, i*70+420, WIN_HEIGHT-360) #roof
         for i in range(1,5):
             BackgroundItem(self.game, 499, WIN_HEIGHT-50 - 40*i, "stairs")
-        for i in range(1,7):
+        for i in range(1,8):
             GroundPlatform(self.game, 500 + 70*i, WIN_HEIGHT-200, "half_ground")
         for i in range(1,5):
-            BackgroundItem(self.game, 990, WIN_HEIGHT-50 - 40*i, "stairs")
+            BackgroundItem(self.game, 1060, WIN_HEIGHT-50 - 40*i, "stairs")
+        for i in range(1,3):
+            for j in range(1,8):
+                WallPlatform(self.game, 500 + 70*j,WIN_HEIGHT-230+70*i)
+        Spike(self.game, 570, WIN_HEIGHT-270, 0)
+        Spike(self.game, 770, WIN_HEIGHT-270, 1)
+        Spike(self.game, 920, WIN_HEIGHT-270, 0)
+        self.star = BackgroundItem(self.game, 1150, WIN_HEIGHT-100, "star")
     def shoot_room(self):
         for i in range(1,9):
             GroundPlatform(self.game, 490 + 70*i, 515, "lava")
@@ -137,6 +142,5 @@ class GameGround:
         pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-210,100,60,80))
         #pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-180,80,30,30))
         #pg.draw.rect(self.game.screen, "blue", (WIN_WIDTH-220,80,30,30))
-    
         
 
