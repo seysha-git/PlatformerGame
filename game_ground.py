@@ -19,6 +19,7 @@ class GameGround:
     def update(self):
         self.check_wall_collision_x()
         self.check_wall_collision_y()
+        self.player_ladder_colission()
         self.create_bullets()
         #self.create_enemies()
     def new(self):
@@ -30,6 +31,18 @@ class GameGround:
     def draw(self):
         self.draw_course_gun()
         #CourseBullet(self.game, WIN_WIDTH-100, 80, rd.randint(1,4))
+    def player_ladder_colission(self):
+        hits = pg.sprite.spritecollide(self.game.player, self.game.background_sprites, False)
+
+        for hit in hits:
+            if hit.type == "stairs":
+                keys = pg.key.get_pressed()
+                self.game.player.on_stairs = True
+                if keys[pg.K_w]:
+                    print("move upwards")
+                    self.game.player.vel.y -= 0.5
+            else:
+                self.game.player.on_stairs = False
 
     def check_wall_collision_x(self):
         wall_hits = pg.sprite.spritecollide(self.game.player, self.game.walls, False)
@@ -75,10 +88,10 @@ class GameGround:
            WallPlatform(self.game, 495, 70*i-20)
         for i in range(1,6):
            GroundPlatform(self.game, 70*i, 240, "half_ground")
-        BackgroundPlatform(self.game, 300, 170, "tresure")
-        BackgroundPlatform(self.game, 75, 170, "door_mid")
-        BackgroundPlatform(self.game, 75, 170-70, "door_top")
-        BackgroundPlatform(self.game, 340, WIN_HEIGHT//2+19, "flag_green")
+        BackgroundItem(self.game, 300, 170, "tresure")
+        BackgroundItem(self.game, 75, 170, "door_mid")
+        BackgroundItem(self.game, 75, 170-70, "door_top")
+        BackgroundItem(self.game, 340, WIN_HEIGHT//2+19, "flag_green")
     def jump_gun_room(self):
         for i in range(1,5): #dør gulvet
             WallPlatform(self.game,WIN_WIDTH-380, 70*i+230)
@@ -90,11 +103,17 @@ class GameGround:
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-450, 0)
         JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-520, 0)
         JumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0)
-        self.star = BackgroundPlatform(self.game, WIN_WIDTH-400, WIN_HEIGHT-100, "star")
+        self.star = BackgroundItem(self.game, WIN_WIDTH-400, WIN_HEIGHT-100, "star")
 
     def start_runner_room(self):
         for i in range(1,11): # Nest nederste taket
             RoofPlatform(self.game, i*70+420, WIN_HEIGHT-360) #roof
+        for i in range(1,5):
+            BackgroundItem(self.game, 499, WIN_HEIGHT-50 - 40*i, "stairs")
+        for i in range(1,7):
+            GroundPlatform(self.game, 500 + 70*i, WIN_HEIGHT-200, "half_ground")
+        for i in range(1,5):
+            BackgroundItem(self.game, 990, WIN_HEIGHT-50 - 40*i, "stairs")
     def shoot_room(self):
         for i in range(1,9):
             GroundPlatform(self.game, 490 + 70*i, 515, "lava")

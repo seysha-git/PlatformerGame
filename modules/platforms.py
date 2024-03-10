@@ -27,18 +27,17 @@ class GroundPlatform(Platform):
              "half_ground": self.game.spritesheet_platform.get_image(576,432,70,70),
              "lava": self.game.spritesheet_platform.get_image(504, 0,70,30),
              
-             "half_up": self.game.spritesheet_platform.get_image(576,720,70,70), 
+             "half_up_left": self.game.spritesheet_platform.get_image(576,144,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")
+        #self.mask = pg.mask.from_surface(self.image)
 
-
-class BackgroundPlatform(Platform):
+class BackgroundItem(Platform):
     def __init__(self, game,x,y, type=""):
         super().__init__(game, x,y,type)
         self.groups = game.all_sprites, game.background_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
         self.images = {
              "door_mid": self.game.spritesheet_platform.get_image(648, 432,70,70),
              "door_top": self.game.spritesheet_platform.get_image(648, 360,70,70),
@@ -47,6 +46,7 @@ class BackgroundPlatform(Platform):
              "flag_green":self.game.spritesheet_items.get_image(216,432,70,70), 
              "tresure": self.game.spritesheet_huds.get_image(146,147,44,40), 
              "star": self.game.spritesheet_items.get_image(504,288,70,70), 
+             "stairs": self.game.spritesheet_platform.get_image(648,144,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black")

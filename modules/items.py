@@ -13,6 +13,8 @@ class PlatItem(pg.sprite.Sprite):
         self.rect.bottom = self.plat.rect.top
 
 
+
+
 class Switch(pg.sprite.Sprite):
     def __init__(self, game, x,y):
         self.game = game
@@ -47,6 +49,7 @@ class Switch(pg.sprite.Sprite):
         #    self.active_image = 0
         self.draw()
         
+
     
 class Pow(PlatItem):
     def __init__(self, game, plat,type="gems"):

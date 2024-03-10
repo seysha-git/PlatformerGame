@@ -112,14 +112,14 @@ class Game:
                     self.playing = False
                 self.running = False 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_w or event.key == pg.K_SPACE:
+                if (event.key == pg.K_w or event.key == pg.K_SPACE) and not self.player.on_stairs:
                     self.player.jump()
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()     
                 PlayerBullet(self, self.player.rect.centerx, self.player.rect.centery, 6, x,y)
     def draw(self):
         self.screen.fill((50, 168, 82))
-        self.player.draw_healthbar()
+        #self.player.draw_healthbar()
         self.game_ground.draw()
         self.all_sprites.draw(self.screen)
         self.navbar()

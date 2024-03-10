@@ -15,6 +15,7 @@ class Player(pg.sprite.Sprite):
         self.walking = False 
         self.ducking = False
         self.jumping = False 
+        self.on_stairs = False
         self.not_hit_portal = True
         self.on_moving_plat = False
 
@@ -36,11 +37,11 @@ class Player(pg.sprite.Sprite):
         self.enemies_collision()
         self.move()
         self.hit_lava()
+        #self.hill_run()
         self.check_alive()
         if self.vel.y > 0:
             self.ground_plat_collission()
             self.jump_plat_colission()
-            self.powerup_collision()
     def load_images(self):
         self.standing_frames = [
             self.game.spritesheet_char.get_image(0, 196, 66, 92),
@@ -69,12 +70,23 @@ class Player(pg.sprite.Sprite):
             
         ]
 
-
+    def hill_run(self):
+        hits = pg.sprite.collide_mask()
+        for hit in hits:
+            if hit.type == "half_up_left":
+                if self.rect.x >= hit.rect.centerx-30:
+                    if self.walking:
+                        print("move upwards")
+                        move_up = 2
+                        self.rect.y -= move_up
+                        self.pos.y -= move_up  # Also update the position vector if necessary
+                       # self.rect.x -= 1  # Adjust x to stay on the slope
+            
     def jump(self): 
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.jump_platforms, False) or pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         self.rect.x -= 1
-        if hits and not self.jumping:
+        if hits and not self.jumping and self.on_stairs == False:
             self.vel.y = -MAIN_JUMP_VEL
             self.jumping = True
             #self.game.jump_sound.play()
@@ -120,12 +132,6 @@ class Player(pg.sprite.Sprite):
                         self.jumping = False
                      
 
-    def powerup_collision(self):
-        pow_hits = pg.sprite.spritecollide(self, self.game.powerups, True)
-        for pow in pow_hits:
-            if pow.type == "gems":
-                pass
-                #self.game.gems_sound.play()
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
