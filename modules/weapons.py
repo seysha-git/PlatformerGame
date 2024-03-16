@@ -52,7 +52,7 @@ class CourseBullet(Bullet):
         self.image = self.game.spritesheet_items.get_image(0,553,19,14)
         self.image.set_colorkey("black")
         self.rect = self.image.get_rect()
-        self.rect.x = rd.randint(WIN_WIDTH-300, WIN_WIDTH-100)
+        self.rect.x = rd.randint(WIN_WIDTH-250, WIN_WIDTH-200)
         self.rect.y = 60+70
         self.speed = rd.randint(1,4)
     def move(self):

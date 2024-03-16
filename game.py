@@ -26,10 +26,40 @@ class Game:
         self.load_data()
         self.top_scroll = 200
         self.scroll_distance = 0
-
+        
         self.check_point_active = False
+        self.level_guide()
 
         self.game_ground = GameGround(self)
+    def level_guide(self):
+        self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 20)
+        self.levels_messages = [ 
+            "This is my intro message",
+            "This is CP nr 2",
+            "This is CP nr 3"
+        ]
+        self.rect = pg.Rect(WIN_WIDTH//2-200, 80,400,170)
+        self.active_message = 0
+        self.message = self.levels_messages[self.active_message]
+        self.snip = self.scrolling_text_font.render(self.message, True, 'white')
+        self.counter = 9
+        self.speed = 4
+        self.all_message_completed = False
+        self.done = False
+    def animated_message(self):
+        if self.active_message < len(self.levels_messages):
+            if self.counter < self.speed * len(self.message):
+                self.counter += 1
+            elif self.counter >= self.speed* len(self.message):
+                self.done = True
+        self.snip = self.scrolling_text_font.render(self.message[0:self.counter//self.speed], True, "white")
+
+    def create_new_message(self):
+        self.active_message += 1
+        self.done = False
+        self.all_message_completed = False
+        self.message = self.levels_messages[self.active_message]
+        self.counter = 0
     def new(self):
         
         self.all_sprites = pg.sprite.LayeredUpdates()
@@ -57,6 +87,7 @@ class Game:
 
 
         self.game_ground.new()
+
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
 
@@ -77,15 +108,17 @@ class Game:
         #pg.mixer.music.play(loops=-1)
         self.playing = True
         while self.playing:
+            self.animated_message()
             self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
+            
         pg.mixer.music.fadeout(500)
     def update(self):
         self.player.not_hit_portal = True
         self.scroll_items = [item for item in self.all_sprites if not isinstance(item, Player)]
-        self.scroll_page() 
+        #self.scroll_page() 
         self.game_ground.update()
         self.all_sprites.update()
                
@@ -114,15 +147,19 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if (event.key == pg.K_w or event.key == pg.K_SPACE) and not self.player.on_stairs:
                     self.player.jump()
+                if event.key == pg.K_RETURN:
+                    self.all_message_completed = True
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()     
                 PlayerBullet(self, self.player.rect.centerx, self.player.rect.centery, 6, x,y)
     def draw(self):
         self.screen.fill((50, 168, 82))
-        self.game_ground.draw()
         self.all_sprites.draw(self.screen)
         self.navbar()
         self.player.draw_healthbar()
+        if not self.all_message_completed:
+            pg.draw.rect(self.screen, "#475F77", self.rect, border_radius= 12)
+            self.screen.blit(self.snip, (self.rect.x + 10, self.rect.y + 40))
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")
@@ -175,16 +212,14 @@ class Game:
         image.set_colorkey("black")
         return image
     def navbar(self):
-        max_health = 100
-        health = 100
-        navbar_rect = pg.Rect(0,0, WIN_WIDTH, 70)
+        navbar_rect = pg.Rect(0,0, WIN_WIDTH, 60)
         pg.draw.rect(self.screen, (77, 219, 115), navbar_rect)
-        self.screen.blit(self.get_logo("main"), (30,20))
+        self.screen.blit(self.get_logo("main"), (30,10))
         self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
         #pg.draw.rect(self.screen, (255, 0,0), (WIN_WIDTH//2-45, 65, 120, 10 ))
         #pg.draw.rect(self.screen, (00, 255,0), (WIN_WIDTH//2-45, 65, 120 * (1-((max_health - health))/max_health), 10 ))
-        pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-250, 10, 200, 50), 0, 5)
-        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-210, 18)
+        #pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-250, 10, 200, 50), 0, 5)
+       # self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-210, 18)
 
         #self.draw_text(f"Level {0}/{5}", 35, "white", 50, 30)
 
