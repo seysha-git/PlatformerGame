@@ -214,7 +214,7 @@ class Player(pg.sprite.Sprite):
         x,y = pg.mouse.get_pos()
         angle = math.degrees(math.atan2(y - self.rect.centery, x - self.rect.centerx))
         if self.gun_index == 1:   
-            angle = max(-30, min(30, angle))
+            angle = max(5, min(-5, angle))
             self.gun_image = self.gun_frames[self.gun_index]
             rotated_image = pg.transform.rotate(self.gun_image, -angle) 
             self.game.screen.blit(rotated_image, (self.rect.left-70, self.rect.centery-50))

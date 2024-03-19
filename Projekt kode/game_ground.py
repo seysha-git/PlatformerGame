@@ -36,15 +36,14 @@ class GameGround:
                     self.game.all_message_completed = True
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()
-                self.player.shoot(x,y)     
+                self.player.shoot()     
     def new(self):
         self.side_field_backgrounds()
         self.start_runner_room()
         self.jump_gun_room()
         self.question_room()
         self.shoot_room()
-        self.player = Player(self.game, WIN_WIDTH-200, WIN_HEIGHT//2)
-        self.princess = Princess(self.game)
+        self.player = Player(self.game, 300, WIN_HEIGHT//2)
     def player_spike_colission(self):
         hits = pg.sprite.spritecollide(self.player, self.game.spikes, False)
         if hits:
@@ -57,11 +56,14 @@ class GameGround:
             self.player.on_stairs = False
         else:
             for hit in hits:
-                if hit.type == "stairs":
+                if hit.type == "stairs" or hit.type=="rope":
                     keys = pg.key.get_pressed()
                     self.player.on_stairs = True
                     if keys[pg.K_w]:
                         self.player.vel.y -= 0.5
+                if hit.type =="door_mid":
+                    self.game.running = False
+                    self.game.show_go_screen()
         
     def player_key_pickup(self):
         hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, True)
@@ -115,12 +117,10 @@ class GameGround:
            WallPlatform(self.game, 495, 70*i-20)
         for i in range(1,3):
            GroundPlatform(self.game, 70*i, 200, "half_ground")
-        self.key = BackgroundBlocks(self.game, 160, 180, "tresure")
+        for i in range(1,6):
+            BackgroundBlocks(self.game, 250, 70*i-20, "rope")
         BackgroundBlocks(self.game, 75, 130, "door_mid")
         BackgroundBlocks(self.game, 75, 130-70, "door_top")
-        JumpPlatform(self.game, 350, 400)
-        JumpPlatform(self.game, 350, 300)
-        JumpPlatform(self.game, 250, 240)
         Checkpoint(self.game, 340, WIN_HEIGHT//2+19, "3")
     def jump_gun_room(self):
         for i in range(1,6): #dør gulvet
@@ -133,7 +133,6 @@ class GameGround:
         MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0, -1)
         Checkpoint(self.game, WIN_WIDTH-390, 130, "2")
         BackgroundBlocks(self.game, WIN_WIDTH-250, 80, "cloud" )
-
     def start_runner_room(self):
         for i in range(1,11): # Nest nederste taket
             RoofPlatform(self.game, i*70+420, WIN_HEIGHT-360) #roof

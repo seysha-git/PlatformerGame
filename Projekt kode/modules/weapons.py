@@ -49,7 +49,7 @@ class CourseBullet(Bullet):
         super().__init__(game)
         self.groups = game.all_sprites, game.course_bullets
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = self.game.spritesheet_items.get_image(0,553,19,14)
+        self.image = self.game.spritesheet_items.get_image(432,432,70,70)
         self.image.set_colorkey("black")
         self.rect = self.image.get_rect()
         self.rect.x = WIN_WIDTH-250

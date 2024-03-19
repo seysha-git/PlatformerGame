@@ -47,6 +47,7 @@ class BackgroundBlocks(Platform):
              "tresure": self.game.spritesheet_huds.get_image(146,147,44,40), 
              "star": self.game.spritesheet_items.get_image(504,288,70,70), 
              "stairs": self.game.spritesheet_platform.get_image(648,144,70,70), 
+             "rope": self.game.spritesheet_platform.get_image(360,864,70,70), 
         }
         self.image = self.images[type]
         self.image.set_colorkey("black") 
@@ -85,9 +86,9 @@ class MovingJumpPlatform(JumpPlatform):
             Pow(self.game, self)
     def update(self):
         self.rect.x += self.direction
-        if self.rect.x > WIN_WIDTH-130:
+        if self.rect.x > WIN_WIDTH-200:
             self.direction *= -1
-        if self.rect.x < WIN_WIDTH -310:
+        if self.rect.x < WIN_WIDTH -200:
             self.direction *= -1
                 
         
