@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import *
 import random as rd
+from utils import *
 
 class PlatItem(pg.sprite.Sprite):
     def __init__(self, game, plat, type="gems"):
@@ -28,6 +29,8 @@ class Pow(PlatItem):
         self.rect.centerx = self.plat.rect.centerx
         if not self.game.jump_platforms.has(self.plat):
             self.kill()
+
+
 
 class Checkpoint(pg.sprite.Sprite):
     def __init__(self, game, x, y, type):

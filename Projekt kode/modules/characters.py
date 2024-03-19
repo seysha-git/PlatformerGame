@@ -1,13 +1,15 @@
 import pygame as pg
 from settings import *
 import sys
+import math
+from modules.weapons import PlayerBullet
 from modules.platforms import MovingJumpPlatform
 #from modules.weapons import Bullet
 import random as rd
 vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, start_pos_x, start_pos_y, targetx=0, targety=0):
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -18,7 +20,7 @@ class Player(pg.sprite.Sprite):
         self.on_stairs = False
         self.not_hit_portal = True
         self.on_moving_plat = False
-
+        self.gun_active = False
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
@@ -26,23 +28,35 @@ class Player(pg.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
-        self.pos = vec(199, WIN_HEIGHT-70) #WIN_WIDTH+400
+        self.pos = vec(start_pos_x, start_pos_y) #WIN_WIDTH+400
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.health = 100
         self.max_health = 100
+    def rotate_aim_gun(self):
+        pass
+
+            #angle = math.atan2()
+
+
     def update(self):
         #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
         self.animate()
         self.enemies_collision()
         self.move()
         self.hit_lava()
+        self.update_gun_animation()
         #self.hill_run()
         self.check_alive()
         if self.vel.y > 0:
             self.ground_plat_collission()
             self.jump_plat_colission()
     def load_images(self):
+        self.gun_index = 0
+        self.gun_frames = [
+            pg.transform.scale(pg.image.load("./images/raygun.png").convert_alpha(), (100,100)),
+            pg.transform.flip(pg.transform.scale(pg.image.load("./images/raygun.png").convert_alpha(), (100,100)), True, False)
+        ]
         self.standing_frames = [
             self.game.spritesheet_char.get_image(0, 196, 66, 92),
             self.game.spritesheet_char.get_image(67, 196, 66, 92),
@@ -131,6 +145,7 @@ class Player(pg.sprite.Sprite):
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
+
         keys = pg.key.get_pressed()
         if keys[pg.K_s]:
             self.duck("right")
@@ -143,7 +158,13 @@ class Player(pg.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5*self.acc
         self.rect.midbottom = self.pos
-            
+    def update_gun_animation(self):
+        x,y = pg.mouse.get_pos()
+        if x > self.rect.x:
+            self.gun_index = 0
+        if x < self.rect.x:
+            self.gun_index = 1
+        
     def animate(self):
         now = pg.time.get_ticks()
         if self.jumping:
@@ -166,6 +187,7 @@ class Player(pg.sprite.Sprite):
                 if self.vel.x > 0:
                     self.image = self.walk_frames_r[self.current_frame]
                 else:
+                    self.gun_image = self.gun_frames[1]
                     self.image = self.walk_frames_l[self.current_frame]
                     #if self.ducking:
                      #   self.duck("left")
@@ -180,7 +202,28 @@ class Player(pg.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         self.mask = pg.mask.from_surface(self.image)
-            
+    def draw(self):
+         self.draw_healthbar() 
+         self.draw_gun()
+    def shoot(self, x,y):
+        if self.gun_index == 0:
+            PlayerBullet(self.game, self.rect.right, self.rect.centery, 6, x,y)
+        if self.gun_index == 1:
+             PlayerBullet(self.game, self.rect.left, self.rect.centery, 6, x,y)
+    def draw_gun(self):
+        x,y = pg.mouse.get_pos()
+        angle = math.degrees(math.atan2(y - self.rect.centery, x - self.rect.centerx))
+        if self.gun_index == 1:   
+            angle = max(-30, min(30, angle))
+            self.gun_image = self.gun_frames[self.gun_index]
+            rotated_image = pg.transform.rotate(self.gun_image, -angle) 
+            self.game.screen.blit(rotated_image, (self.rect.left-70, self.rect.centery-50))
+        if self.gun_index == 0:
+            angle = max(-30, min(30, angle))
+            self.gun_image = self.gun_frames[self.gun_index]
+            rotated_image = pg.transform.rotate(self.gun_image, -angle) 
+            self.game.screen.blit(rotated_image, (self.rect.right-50, self.rect.centery-50))
+        
     def draw_healthbar(self):
         pg.draw.rect(self.game.screen, (255, 0,0), (self.rect.x, self.rect.y - 20, self.rect.width, 10 ))
         pg.draw.rect(self.game.screen, (00, 255,0), (self.rect.x, self.rect.y - 20, self.rect.width * (1-((self.max_health - self.health))/self.max_health), 10 ))
@@ -240,7 +283,6 @@ class EnemyFly(pg.sprite.Sprite):
         self.mask = pg.mask.from_surface(self.image)
         if self.rect.x < WIN_WIDTH-900:
             self.kill()
-            print("kill")
 
         self.vy += self.dy
         if self.vy > 5 or self.vy < -5:

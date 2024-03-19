@@ -2,7 +2,7 @@ import pygame as pg
 import math
 from settings import *
 import random as rd
-
+from utils import *
 
 class Bullet(pg.sprite.Sprite):
      def __init__(self, game):
@@ -29,7 +29,7 @@ class PlayerBullet(Bullet):
         angle = math.atan2(targety-y, targetx-x)
         self.dx = math.cos(angle)*speed
         self.dy = math.sin(angle)*speed
-
+    
     def move(self):
         self.x = self.x + self.dx
         self.y = self.y + self.dy
@@ -52,7 +52,7 @@ class CourseBullet(Bullet):
         self.image = self.game.spritesheet_items.get_image(0,553,19,14)
         self.image.set_colorkey("black")
         self.rect = self.image.get_rect()
-        self.rect.x = rd.randint(WIN_WIDTH-250, WIN_WIDTH-200)
+        self.rect.x = WIN_WIDTH-250
         self.rect.y = 60+70
         self.speed = rd.randint(1,4)
     def move(self):
@@ -70,6 +70,6 @@ class CourseBullet(Bullet):
             self.kill()
         if hit_player:
             self.kill()
-            self.game.player.health -= 5
+            self.game.game_ground.player.health -= 5
 
 
