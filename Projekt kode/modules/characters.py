@@ -5,6 +5,7 @@ import math
 from modules.weapons import PlayerBullet
 from modules.platforms import MovingJumpPlatform
 #from modules.weapons import Bullet
+from modules.items import Key
 import random as rd
 vec = pg.math.Vector2
 
@@ -25,7 +26,7 @@ class Player(pg.sprite.Sprite):
         self.last_update = 0
         self.load_images()
         self.image = self.standing_frames[0]
-
+        self.keys = 0
         self.rect = self.image.get_rect()
         self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
         self.pos = vec(start_pos_x, start_pos_y) #WIN_WIDTH+400
@@ -105,7 +106,7 @@ class Player(pg.sprite.Sprite):
             self.jumping = True
             #self.game.jump_sound.play()
     def enemies_collision(self):
-        enemies = pg.sprite.spritecollide(self, self.game.enemies, True, pg.sprite.collide_mask)
+        enemies = pg.sprite.spritecollide(self, self.game.enemies, True)
         if enemies:
             self.health -= 20
     def check_alive(self):
@@ -214,12 +215,14 @@ class Player(pg.sprite.Sprite):
         x,y = pg.mouse.get_pos()
         angle = math.degrees(math.atan2(y - self.rect.centery, x - self.rect.centerx))
         if self.gun_index == 1:   
-            angle = max(5, min(-5, angle))
-            self.gun_image = self.gun_frames[self.gun_index]
-            rotated_image = pg.transform.rotate(self.gun_image, -angle) 
-            self.game.screen.blit(rotated_image, (self.rect.left-70, self.rect.centery-50))
-        if self.gun_index == 0:
             angle = max(-30, min(30, angle))
+            self.gun_image = self.gun_frames[self.gun_index]
+            rotated_image = pg.transform.rotate(self.gun_image, angle)
+            gun_rect = rotated_image.get_rect()
+            blit_pos = (self.rect.left - gun_rect.width + 70, self.rect.centery - gun_rect.height // 2.5)
+            self.game.screen.blit(rotated_image, blit_pos)
+        if self.gun_index == 0:
+            angle = max(-60, min(60, angle))
             self.gun_image = self.gun_frames[self.gun_index]
             rotated_image = pg.transform.rotate(self.gun_image, -angle) 
             self.game.screen.blit(rotated_image, (self.rect.right-50, self.rect.centery-50))
@@ -299,6 +302,9 @@ class EnemyFly(pg.sprite.Sprite):
         hit = pg.sprite.spritecollide(self, self.game.player_bullets, True)
         if hit:
             self.kill()
+            if rd.randrange(2) == 1:
+                Key(self.game, self.rect.x, self.rect.y)
+
 
 
 

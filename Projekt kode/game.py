@@ -105,7 +105,7 @@ class Game:
         self.powerups = pg.sprite.Group()
         self.logos =pg.sprite.Group()
         
-        self.switches = pg.sprite.Group()
+        self.keys = pg.sprite.Group()
         self.spikes = pg.sprite.Group()
         self.doors = pg.sprite.Group()
         self.princesses = pg.sprite.Group()
@@ -211,7 +211,8 @@ class Game:
     def get_logo(self, type):
         images = {
             "main": self.spritesheet_huds.get_image(55,49,47,47),
-            "princess": self.spritesheet_huds.get_image(49,190,47,47)
+            "princess": self.spritesheet_huds.get_image(49,190,47,47),
+            "keys": self.spritesheet_huds.get_image(146,147,44,40)
         }
         image = images[type]
         image.set_colorkey("black")
@@ -221,6 +222,8 @@ class Game:
         pg.draw.rect(self.screen, (77, 219, 115), navbar_rect)
         self.screen.blit(self.get_logo("main"), (30,10))
         self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
+        for i in range(self.game_ground.player.keys):
+            self.screen.blit(self.get_logo("keys"), (100+ 70*i, 10))
         
 
 

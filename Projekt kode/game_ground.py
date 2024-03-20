@@ -19,9 +19,10 @@ class GameGround:
         self.player_ladder_colission()
         self.player_spike_colission()
         self.handle_checkpoint_collisions()
-        self.create_bullets()
-        #self.player_key_pickup()
-        #self.create_enemies()
+        self.move_wall_down()
+        #self.create_bullets()
+        self.player_key_pickup()
+        self.create_enemies()
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -32,18 +33,16 @@ class GameGround:
                 if (event.key == pg.K_w or event.key == pg.K_SPACE) and not self.player.on_stairs:
                     self.player.jump()
                 if event.key == pg.K_RETURN:
-                    print("hello")
                     self.game.all_message_completed = True
             if event.type == pg.MOUSEBUTTONDOWN:
                 x,y = pg.mouse.get_pos()
-                self.player.shoot()     
+                self.player.shoot(x,y)     
     def new(self):
         self.side_field_backgrounds()
         self.start_runner_room()
         self.jump_gun_room()
-        self.question_room()
         self.shoot_room()
-        self.player = Player(self.game, 300, WIN_HEIGHT//2)
+        self.player = Player(self.game, WIN_WIDTH-300, 100)
     def player_spike_colission(self):
         hits = pg.sprite.spritecollide(self.player, self.game.spikes, False)
         if hits:
@@ -66,9 +65,10 @@ class GameGround:
                     self.game.show_go_screen()
         
     def player_key_pickup(self):
-        hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, True)
+        hits = pg.sprite.spritecollide(self.player, self.game.keys, False)
         if hits:
-            print("key picked up")
+            self.player.keys += 1
+            hits[0].kill()
 
     def player_wall_collision_x(self):
         wall_hits = pg.sprite.spritecollide(self.player, self.game.walls, False)
@@ -110,18 +110,14 @@ class GameGround:
             elif hits[0].type == "3":
                 self.game.quiz_active = True
             self.game.create_new_message()
-    def question_room(self):
-        for i in range(1,7):
-            GroundPlatform(self.game, 70*i, WIN_HEIGHT-360)
-        for i in range(1,5):
-           WallPlatform(self.game, 495, 70*i-20)
-        for i in range(1,3):
-           GroundPlatform(self.game, 70*i, 200, "half_ground")
-        for i in range(1,6):
-            BackgroundBlocks(self.game, 250, 70*i-20, "rope")
-        BackgroundBlocks(self.game, 75, 130, "door_mid")
-        BackgroundBlocks(self.game, 75, 130-70, "door_top")
-        Checkpoint(self.game, 340, WIN_HEIGHT//2+19, "3")
+    def move_wall_down(self):
+        if self.player.keys >= 3:
+            for wall in self.game.walls:
+                if wall.type == "portal":
+                    print("move down")
+                    if not wall.rect.y == -10:
+                        wall.rect.y -= 1
+
     def jump_gun_room(self):
         for i in range(1,6): #dør gulvet
             WallPlatform(self.game,WIN_WIDTH-380, 70*i+180)
@@ -129,13 +125,13 @@ class GameGround:
             GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, 210, "half_ground")
         JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-190)
         JumpPlatform(self.game, WIN_WIDTH-240, WIN_HEIGHT-478)
-        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-320, 0, 1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-310, WIN_HEIGHT-620, 0, -1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-280, WIN_HEIGHT-320, 0, 1)
+        MovingJumpPlatform(self.game, WIN_WIDTH-280, WIN_HEIGHT-620, 0, -1)
         Checkpoint(self.game, WIN_WIDTH-390, 130, "2")
         BackgroundBlocks(self.game, WIN_WIDTH-250, 80, "cloud" )
     def start_runner_room(self):
-        for i in range(1,11): # Nest nederste taket
-            RoofPlatform(self.game, i*70+420, WIN_HEIGHT-360) #roof
+        for i in range(1,16): # Nest nederste taket
+            RoofPlatform(self.game, i*70, WIN_HEIGHT-360) #roof
         for i in range(1,5):
             BackgroundBlocks(self.game, 499, WIN_HEIGHT-50 - 40*i, "stairs")
         for i in range(1,8):
@@ -150,14 +146,26 @@ class GameGround:
         Spike(self.game, 920, WIN_HEIGHT-270, 0, self.spikes_time)
         Checkpoint(self.game, 1150, WIN_HEIGHT-100, "1")
     def shoot_room(self):
-        for i in range(1,9):
-            GroundPlatform(self.game, 490 + 70*i, 515, "lava")
+        for i in range(1,16):
+            GroundPlatform(self.game, 70*i, 515, "lava")
         JumpPlatform(self.game, WIN_WIDTH//2, WIN_HEIGHT-500)
         JumpPlatform(self.game, WIN_WIDTH//2+120, WIN_HEIGHT-600)
         JumpPlatform(self.game, WIN_WIDTH//2-120, WIN_HEIGHT-650)
         JumpPlatform(self.game, WIN_WIDTH//2-120, WIN_HEIGHT-450)
+        JumpPlatform(self.game, WIN_WIDTH//2-350, WIN_HEIGHT-500)
+        JumpPlatform(self.game, WIN_WIDTH//2-450, WIN_HEIGHT-600)
+        BackgroundBlocks(self.game, 75, 130, "door_mid")
+        BackgroundBlocks(self.game, 75, 130-70, "door_top")
+        Checkpoint(self.game, 340, WIN_HEIGHT//2+19, "3")
+
+        for i in range(1,9):
+           WallPlatform(self.game, 495, 70*i-20, "portal")
+        for i in range(1,3):
+           GroundPlatform(self.game, 70*i, 200, "half_ground")
+        for i in range(1,3):
+            BackgroundBlocks(self.game, 250, 70*i-20, "rope")
     def create_enemies(self):
-        while len(list(self.game.enemies)) < 2:
+        while len(list(self.game.enemies)) < 1:
             EnemyFly(self.game,  WIN_WIDTH-450,rd.randint(WIN_HEIGHT-600, WIN_HEIGHT-500))
     
             #GroundPlatform(self.game, 350, 535, "wood_box")

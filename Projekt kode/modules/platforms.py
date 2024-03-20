@@ -2,7 +2,6 @@ import pygame as pg
 from settings import *
 from utils import *
 from modules.items import Spike
-from modules.items import Pow
 import random as rd
 
 class Platform(pg.sprite.Sprite):
@@ -53,8 +52,9 @@ class BackgroundBlocks(Platform):
         self.image.set_colorkey("black") 
 
 class WallPlatform(Platform):
-    def __init__(self, game,x,y):
+    def __init__(self, game,x,y, type="wall"):
         super().__init__(game, x,y)
+        self.type = type
         self.groups = game.all_sprites, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.image = self.game.spritesheet_platform.get_image(0,432,70,70)
@@ -82,13 +82,11 @@ class MovingJumpPlatform(JumpPlatform):
         super().__init__(game, x, y)
         self.time = time
         self.direction = start_dir
-        if rd.randrange(3) < POWER_COUNT:
-            Pow(self.game, self)
     def update(self):
         self.rect.x += self.direction
         if self.rect.x > WIN_WIDTH-200:
             self.direction *= -1
-        if self.rect.x < WIN_WIDTH -200:
+        if self.rect.x < WIN_WIDTH -300:
             self.direction *= -1
                 
         

@@ -14,23 +14,6 @@ class PlatItem(pg.sprite.Sprite):
         self.rect.centerx = self.plat.rect.centerx
         self.rect.bottom = self.plat.rect.top
 
-class Pow(PlatItem):
-    def __init__(self, game, plat,type="gems"):
-        super().__init__(game, plat, type)
-        self._layer = POW_LAYER
-        self.groups = game.all_sprites, game.powerups
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.type = type
-        self.image = self.game.spritesheet_items.get_image(144,362,70,70)
-        self.image.set_colorkey("black")
-
-    def update(self):
-        self.rect.bottom = self.plat.rect.top - 5
-        self.rect.centerx = self.plat.rect.centerx
-        if not self.game.jump_platforms.has(self.plat):
-            self.kill()
-
-
 
 class Checkpoint(pg.sprite.Sprite):
     def __init__(self, game, x, y, type):
@@ -44,7 +27,17 @@ class Checkpoint(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
+class Key(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.keys
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.type = type
+        self.image = self.game.spritesheet_items.get_image(72,363,70,70)
+        self.image.set_colorkey("black")
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class Spike(pg.sprite.Sprite):
     def __init__(self, game, x, y, type, time):
