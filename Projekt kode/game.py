@@ -158,19 +158,24 @@ class Game:
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")
-        self.draw_text("Mitt Platform spill", 100, "white",200,180)
-        self.play_button = Button(self.screen, "Spill nå", 200, 50, (200,400))
-        self.settings_button = Button(self.screen, "Instillinger", 200, 50, (200,500))
-        self.quit_button = Button(self.screen, "Avslutt", 200, 50, (200,600))
-        self.draw_text(GAME_DESCRIPTION_1, 30, "white", 600,400)
-        self.draw_text(GAME_DESCRIPTION_2, 30, "white", 600,450)
-        self.draw_text(GAME_DESCRIPTION_3, 30, "white", 600,500)
-        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,550)
-        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,600)
+        self.draw_text("Mitt Platform spill", 100, "white",400,200)
+        self.draw_text("Kontrollene", 50, "white", 590, 320)
+        self.w = Button(self.screen, "w", 120, 70, (630,400))
+        self.a = Button(self.screen, "a", 120, 70, (630,500))
+        self.s = Button(self.screen, "s", 120, 70, (480,500))
+        self.d = Button(self.screen, "d", 120, 70, (780,500))
 
+        self.play_button = Button(self.screen, "Spill nå", 200, 60, (590,630), "green")
         self.play_button.draw()
-        self.settings_button.draw()
-        self.quit_button.draw()
+        self.w.draw()
+        self.a.draw()
+        self.s.draw()
+        self.d.draw()
+
+        
+
+        
+
 
         pg.display.flip()
         self.wait_for_key()
@@ -224,7 +229,8 @@ class Game:
         self.screen.blit(self.get_logo("princess"), (WIN_WIDTH//2-10, 10))
         for i in range(self.game_ground.player.keys):
             self.screen.blit(self.get_logo("keys"), (100+ 70*i, 10))
-        
+        pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-240, 10, 150, 40), 0, 5)
+        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-220, 12)
 
 
 

@@ -48,6 +48,7 @@ class GameGround:
         if hits:
             if hits[0].type == 0:
                 hits[0].kill()
+                print("hit")
                 self.player.health -= 20
     def player_ladder_colission(self):
         hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, False)
@@ -115,7 +116,7 @@ class GameGround:
             for wall in self.game.walls:
                 if wall.type == "portal":
                     print("move down")
-                    if not wall.rect.y == -10:
+                    if wall.rect.y > -10:
                         wall.rect.y -= 1
 
     def jump_gun_room(self):
@@ -141,9 +142,10 @@ class GameGround:
         for i in range(1,3):
             for j in range(1,8):
                 WallPlatform(self.game, 500 + 70*j,WIN_HEIGHT-230+70*i)
-        Spike(self.game, 670, WIN_HEIGHT-270, 0,self.spikes_time )
-        Spike(self.game, 770, WIN_HEIGHT-270, 0, self.spikes_time)
-        Spike(self.game, 920, WIN_HEIGHT-270, 0, self.spikes_time)
+        Spike(self.game, 600, WIN_HEIGHT-270, 0,self.spikes_time )
+        UpsideDownSpike(self.game, 700, WIN_HEIGHT-290, 1, self.spikes_time)
+        UpsideDownSpike(self.game, 800, WIN_HEIGHT-290, 1, self.spikes_time)
+        Spike(self.game, 950, WIN_HEIGHT-270, 0, self.spikes_time)
         Checkpoint(self.game, 1150, WIN_HEIGHT-100, "1")
     def shoot_room(self):
         for i in range(1,16):

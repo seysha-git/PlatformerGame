@@ -39,8 +39,9 @@ class PlayerBullet(Bullet):
         self.move()
         self.check_colission()
     def check_colission(self):
-        hit = pg.sprite.spritecollide(self, self.game.walls, False)
+        hit = pg.sprite.spritecollide(self, self.game.walls, False) or  pg.sprite.spritecollide(self, self.game.roofs, False)
         if hit:
+            print("hit")
             self.kill()
 
 

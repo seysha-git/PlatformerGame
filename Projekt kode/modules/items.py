@@ -71,3 +71,12 @@ class Spike(pg.sprite.Sprite):
         self.image = self.images[self.type]
         self.image.set_colorkey("black")
 
+class UpsideDownSpike(Spike):
+    def __init__(self, game, x, y, type, time):
+        super().__init__(game, x, y, type, time)
+        self.groups = game.all_sprites, game.spikes
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.images = [
+            pg.transform.rotate(self.game.spritesheet_items.get_image(347, 0, 70, 70), 180),
+            self.game.spritesheet_items.get_image(0, 0, 0, 0)
+        ]

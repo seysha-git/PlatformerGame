@@ -2,10 +2,10 @@ import pygame as pg, sys
 from settings import *
 
 class Button:
-    def __init__(self, screen, text, width, height, pos):
+    def __init__(self, screen, text, width, height, pos, color="#475F77"):
         self.pressed = False
         self.top_rect = pg.Rect(pos, (width, height))
-        self.top_color = "#475F77"
+        self.top_color = color
         self.screen = screen
         self.text = text
 
