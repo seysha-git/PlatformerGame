@@ -3,12 +3,8 @@ import sys
 from settings import *
 from modules.characters import *
 from modules.guide_items import *
-from modules.weapons import PlayerBullet
-from urllib.parse import unquote
-import html
 from os import path
 from game_ground import GameGround
-import requests
 pg.font.init()
 from utils import *
 
@@ -23,10 +19,11 @@ class Game:
         self.quiz_font = pg.font.Font("freesansbold.ttf", 20)
         self.clock = pg.time.Clock()
         self.running = True
-        self.quiz_active = False
+        self.completed = True
         self.quiz_rect = pg.Rect(WIN_WIDTH//2-250, 80,500,300)
         self.load_game_data()
         self.game_ground = GameGround(self)
+        self.time = 0
     def level_guide(self):
         self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 20)
         self.levels_messages = [ 
@@ -54,34 +51,6 @@ class Game:
         if not self.all_message_completed:
             pg.draw.rect(self.screen, "#475F77", self.guide_rect, border_radius= 12)
             self.screen.blit(self.snip_guide, (self.guide_rect.x + 10, self.guide_rect.y + 40))
-    def draw_quiz_message(self):
-        results = data["results"]
-        curr = 0
-        if self.quiz_active and self.all_message_completed:
-                pg.draw.rect(self.screen, "#475F77", self.quiz_rect, border_radius= 12)
-                current_question = results[curr]
-                question_text = current_question['question']
-                answers = current_question["incorrect_answers"]
-                top = 50
-                for answer in answers:
-                    answer_button = QuizButton(self.screen, answer, 110, 50 + top, (self.quiz_rect.x + 100, self.quiz_rect.y + 100))
-                    answer_button.draw()
-                    top += 50
-
-                question_text = self.quiz_font.render(question_text, True, "white")
-                """
-                self.answers = [
-                    QuizButton(self.screen, "a", 110, 50, (self.quiz_rect.x + 100, self.quiz_rect.y + 100)),
-                    QuizButton(self.screen, "b", 110, 50, (self.quiz_rect.x + 100, self.quiz_rect.y + 220)),
-                    QuizButton(self.screen, "c", 110, 50, (self.quiz_rect.x + 300, self.quiz_rect.y + 100)),
-                    QuizButton(self.screen, "d", 110, 50, (self.quiz_rect.x + 300, self.quiz_rect.y + 220))
-                ] 
-                for answer in self.answers:
-                    answer.draw()
-                    answer.check_click()
-                """
-                self.screen.blit(question_text, (self.quiz_rect.x + 10, self.quiz_rect.y + 40))
-                pg.display.update()
     def create_new_message(self):
         if self.active_message < len(self.levels_messages) -1:
             self.active_message += 1
@@ -116,11 +85,18 @@ class Game:
 
         self.game_ground.new()
 
+        self.delayed_time = self.time
+
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
-
     def load_game_data(self):
         self.dir = path.dirname(__file__)
+        with open(path.join(self.dir, TS_FILE),'w') as f:
+            try:
+                self.top_time_score = int(f.read())
+            except:
+                self.top_time_score = 0
+
         img_dir = path.join(self.dir, "images")
         self.spritesheet_char = Spritesheet(path.join(img_dir, SPRITESHEET_CHAR))
         self.spritesheet_platform = Spritesheet(path.join(img_dir, SPRITESHEET_PLATFORM))
@@ -144,17 +120,15 @@ class Game:
             
         pg.mixer.music.fadeout(500)
     def update(self):
-        self.scroll_items = [item for item in self.all_sprites if not isinstance(item, Player)]
-        #self.scroll_page() 
         self.game_ground.update()
         self.all_sprites.update()
+        self.delayed_time = (pg.time.get_ticks() - self.time) // 1000
     def draw(self):
         self.screen.fill((50, 168, 82))
         self.all_sprites.draw(self.screen)
         self.navbar()
         self.game_ground.player.draw()
         self.draw_guide_message()
-       # self.draw_quiz_message()
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")
@@ -176,24 +150,35 @@ class Game:
 
         
 
-
         pg.display.flip()
         self.wait_for_key()
-    def show_go_screen(self):
-        if self.running:
-            return
-        self.screen.fill("dark blue")
-        self.draw_text("Spill ferdig", 100, "white",200,180)
-        self.play_button = Button(self.screen, "Spill igjen", 200, 50, (200,400))
-        self.quit_button = Button(self.screen, "Avslutt", 200, 50, (200,600))
-        self.draw_text(GAME_DESCRIPTION_1, 30, "white", 600,400)
-        self.draw_text(GAME_DESCRIPTION_2, 30, "white", 600,450)
-        self.draw_text(GAME_DESCRIPTION_3, 30, "white", 600,500)
-        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,550)
-        self.draw_text(GAME_DESCRIPTION_4, 30, "white", 600,600)
-        self.play_button.draw()
-        pg.display.flip()
+    def show_go_screen(self): 
+        if self.playing:
+           return
+        self.title = ""
+        self.play_button = Button(self.screen, "Spill igjen", 200, 50, (520,800))
+        self.quit_button = Button(self.screen, "Avslutt", 200, 50, (780,800))
 
+        self.screen.fill("dark grey")
+        self.draw_text(f"{self.title}", 100, "white",570,100)
+        pg.draw.rect(self.screen, "black", (0, 220, WIN_WIDTH, 20))
+        pg.draw.rect(self.screen, "black", (0, WIN_HEIGHT-180, WIN_WIDTH, 20))
+
+        pg.draw.rect(self.screen, "light blue", (460, 290, 620, 400), 0, 5)
+        self.play_button.draw()
+        self.quit_button.draw()
+        if self.completed:
+            self.title = "Bra Jobba!"
+            if self.delayed_time > self.top_time_score:
+                self.top_time_score = self.delayed_time
+                with open(path.join(self.dir, TS_FILE), "w") as f:
+                    f.write(str(self.top_time_score))
+            self.draw_text("Statistikk", 50, "white", 460+220, 320)
+            self.draw_text(f"Beste tid: {self.top_time_score}          Din tid: {self.delayed_time}", 30, "white", 460 + 100, 400)
+            self.draw_text(f"Best aim: 5/20            Ditt aim : 20/30", 30, "white", 460 + 100, 460)
+            self.draw_text(f"Mest liv: 80/100          Ditt liv: 60/100", 30, "white", 460 + 100, 520)
+            self.draw_text(f"Godt forsøk, prøv igjen :)", 30, "white", 460 + 150, 620)
+        pg.display.flip()
         self.wait_for_key()
     def wait_for_key(self):
         waiting = True
@@ -230,7 +215,7 @@ class Game:
         for i in range(self.game_ground.player.keys):
             self.screen.blit(self.get_logo("keys"), (100+ 70*i, 10))
         pg.draw.rect(self.screen, "light blue", (WIN_WIDTH-240, 10, 150, 40), 0, 5)
-        self.draw_text("Tid: 00:00", 30, "white", WIN_WIDTH-220, 12)
+        self.draw_text(f"Tid: {self.delayed_time}:00", 30, "white", WIN_WIDTH-220, 12)
 
 
 

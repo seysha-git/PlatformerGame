@@ -13,6 +13,7 @@ class GameGround:
         self.game = game
         self.ground_length = 23
         self.spawn_course_bullets = False
+        self.game_door_arrived = True
     def update(self):
         self.player_wall_collision_x()
         self.player_wall_collision_y()
@@ -20,6 +21,7 @@ class GameGround:
         self.player_spike_colission()
         self.handle_checkpoint_collisions()
         self.move_wall_down()
+        self.player_hit_door()
         #self.create_bullets()
         self.player_key_pickup()
         self.create_enemies()
@@ -42,7 +44,7 @@ class GameGround:
         self.start_runner_room()
         self.jump_gun_room()
         self.shoot_room()
-        self.player = Player(self.game, WIN_WIDTH-300, 100)
+        self.player = Player(self.game, 300,50)
     def player_spike_colission(self):
         hits = pg.sprite.spritecollide(self.player, self.game.spikes, False)
         if hits:
@@ -61,25 +63,28 @@ class GameGround:
                     self.player.on_stairs = True
                     if keys[pg.K_w]:
                         self.player.vel.y -= 0.5
-                if hit.type =="door_mid":
-                    self.game.running = False
-                    self.game.show_go_screen()
-        
     def player_key_pickup(self):
         hits = pg.sprite.spritecollide(self.player, self.game.keys, False)
         if hits:
             self.player.keys += 1
             hits[0].kill()
-
+    def player_hit_door(self):
+        hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, False)
+        if hits:
+            for hit in hits:
+                if hit.type == "door_mid":
+                    print("hit")
+                    self.game.playing = False
+                    self.game.completed = True
     def player_wall_collision_x(self):
         wall_hits = pg.sprite.spritecollide(self.player, self.game.walls, False)
         for tile in wall_hits:
-            if self.player.vel.x > 0:
-                self.player.pos.x = tile.rect.left - self.player.rect.w+30
-                self.player.rect.x = self.player.pos.x
-            elif self.player.vel.x < 0:
-                self.player.pos.x = tile.rect.right + self.player.rect.w-30
-                self.player.rect.x = self.player.pos.x
+                if self.player.vel.x > 0:
+                    self.player.pos.x = tile.rect.left - self.player.rect.w+30
+                    self.player.rect.x = self.player.pos.x
+                elif self.player.vel.x < 0:
+                    self.player.pos.x = tile.rect.right + self.player.rect.w-30
+                    self.player.rect.x = self.player.pos.x
     def player_wall_collision_y(self):
         wall_hits = pg.sprite.spritecollide(self.player, self.game.roofs, False)
         #self.game.player.rect.bottom += 1
@@ -141,7 +146,7 @@ class GameGround:
             BackgroundBlocks(self.game, 1060, WIN_HEIGHT-50 - 40*i, "stairs")
         for i in range(1,3):
             for j in range(1,8):
-                WallPlatform(self.game, 500 + 70*j,WIN_HEIGHT-230+70*i)
+                WallPlatform(self.game, 510 + 69*j,WIN_HEIGHT-230+70*i, type="block")
         Spike(self.game, 600, WIN_HEIGHT-270, 0,self.spikes_time )
         UpsideDownSpike(self.game, 700, WIN_HEIGHT-290, 1, self.spikes_time)
         UpsideDownSpike(self.game, 800, WIN_HEIGHT-290, 1, self.spikes_time)
@@ -160,7 +165,7 @@ class GameGround:
         BackgroundBlocks(self.game, 75, 130-70, "door_top")
         Checkpoint(self.game, 340, WIN_HEIGHT//2+19, "3")
 
-        for i in range(1,9):
+        for i in range(1,8):
            WallPlatform(self.game, 495, 70*i-20, "portal")
         for i in range(1,3):
            GroundPlatform(self.game, 70*i, 200, "half_ground")

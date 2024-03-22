@@ -111,7 +111,6 @@ class Player(pg.sprite.Sprite):
             self.health -= 20
     def check_alive(self):
         if self.health < 10:
-            print("dead")
             self.game.playing = False
     def hit_lava(self):
         hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
