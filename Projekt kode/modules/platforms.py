@@ -38,8 +38,8 @@ class BackgroundBlocks(Platform):
         self.groups = game.all_sprites, game.background_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.images = {
-             "door_mid": self.game.spritesheet_platform.get_image(648, 432,70,70),
-             "door_top": self.game.spritesheet_platform.get_image(648, 360,70,70),
+             "door_open_mid": self.game.spritesheet_platform.get_image(648, 288,70,70),
+             "door_open_top": self.game.spritesheet_platform.get_image(648, 216,70,70),
              "cloud": self.game.spritesheet_items.get_image(0, 146,128,71), 
              "water": self.game.spritesheet_platform.get_image(504, 216,70,70),
              "flag_green":self.game.spritesheet_items.get_image(216,432,70,70), 
@@ -47,6 +47,7 @@ class BackgroundBlocks(Platform):
              "star": self.game.spritesheet_items.get_image(504,288,70,70), 
              "stairs": self.game.spritesheet_platform.get_image(648,144,70,70), 
              "rope": self.game.spritesheet_platform.get_image(360,864,70,70), 
+             "umbrella_shield": pg.transform.scale(pg.image.load("./images/umbrellaOpen.png").convert_alpha(), (120,160)),
         }
         self.image = self.images[type]
         self.image.set_colorkey("black") 
@@ -81,13 +82,18 @@ class MovingJumpPlatform(JumpPlatform):
     def __init__(self, game, x, y, time, start_dir):
         super().__init__(game, x, y)
         self.time = time
+        self.toggle_time_interval = 500
         self.direction = start_dir
     def update(self):
+        now = pg.time.get_ticks()
+        time_since_last_toggle = now - self.time
         self.rect.x += self.direction
-        if self.rect.x > WIN_WIDTH-200:
+        if time_since_last_toggle >= self.toggle_time_interval:
             self.direction *= -1
-        if self.rect.x < WIN_WIDTH -300:
-            self.direction *= -1
+            self.time = now
+
+
+
                 
         
         

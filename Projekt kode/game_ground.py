@@ -9,7 +9,7 @@ from modules.weapons import CourseBullet, PlayerBullet
 
 class GameGround:
     def __init__(self, game):
-        self.spikes_time = 0
+        self.start_toggle_time = 0
         self.game = game
         self.ground_length = 23
         self.spawn_course_bullets = False
@@ -17,12 +17,12 @@ class GameGround:
     def update(self):
         self.player_wall_collision_x()
         self.player_wall_collision_y()
-        self.player_ladder_colission()
-        self.player_spike_colission()
+        #self.player_ladder_colission()
         self.handle_checkpoint_collisions()
         self.move_wall_down()
         self.player_hit_door()
-        #self.create_bullets()
+        self.spike_colission()
+        self.update_create_bullets()
         self.player_key_pickup()
         self.create_enemies()
     def events(self):
@@ -44,30 +44,18 @@ class GameGround:
         self.start_runner_room()
         self.jump_gun_room()
         self.shoot_room()
-        self.player = Player(self.game, 300,50)
-    def player_spike_colission(self):
-        hits = pg.sprite.spritecollide(self.player, self.game.spikes, False)
-        if hits:
-            if hits[0].type == 0:
-                hits[0].kill()
-                print("hit")
-                self.player.health -= 20
-    def player_ladder_colission(self):
-        hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, False)
-        if not hits:
-            self.player.on_stairs = False
-        else:
-            for hit in hits:
-                if hit.type == "stairs" or hit.type=="rope":
-                    keys = pg.key.get_pressed()
-                    self.player.on_stairs = True
-                    if keys[pg.K_w]:
-                        self.player.vel.y -= 0.5
+        self.player = Player(self.game, 200,WIN_HEIGHT-100)
     def player_key_pickup(self):
         hits = pg.sprite.spritecollide(self.player, self.game.keys, False)
         if hits:
             self.player.keys += 1
             hits[0].kill()
+    def spike_colission(self):
+        hits = pg.sprite.spritecollide(self.player, self.game.spikes, False)
+        if hits:
+            if hits[0].index == 0:
+                self.player.health -= 20
+                hits[0].toggle_spike()
     def player_hit_door(self):
         hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, False)
         if hits:
@@ -121,36 +109,39 @@ class GameGround:
             for wall in self.game.walls:
                 if wall.type == "portal":
                     print("move down")
-                    if wall.rect.y > -10:
-                        wall.rect.y -= 1
-
+                    if wall.rect.y > 50:
+                        wall.rect.y -= 1                   
     def jump_gun_room(self):
-        for i in range(1,6): #dør gulvet
-            WallPlatform(self.game,WIN_WIDTH-380, 70*i+180)
+        for i in range(1,7): #dør gulvet
+            WallPlatform(self.game,WIN_WIDTH-380, 70*i+120)
         for i in range(1,3):
-            GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, 210, "half_ground")
+            GroundPlatform(self.game, WIN_WIDTH-520 + 70*i, 150, "half_ground")
+        BackgroundBlocks(self.game, WIN_WIDTH-150, WIN_HEIGHT-190-135, "umbrella_shield")
         JumpPlatform(self.game, WIN_WIDTH-130, WIN_HEIGHT-190)
-        JumpPlatform(self.game, WIN_WIDTH-240, WIN_HEIGHT-478)
-        MovingJumpPlatform(self.game, WIN_WIDTH-280, WIN_HEIGHT-320, 0, 1)
-        MovingJumpPlatform(self.game, WIN_WIDTH-280, WIN_HEIGHT-620, 0, -1)
-        Checkpoint(self.game, WIN_WIDTH-390, 130, "2")
-        BackgroundBlocks(self.game, WIN_WIDTH-250, 80, "cloud" )
+        MovingJumpPlatform(self.game, WIN_WIDTH-200, WIN_HEIGHT-320, self.start_toggle_time, 1)
+        BackgroundBlocks(self.game, WIN_WIDTH-320, WIN_HEIGHT-460-135, "umbrella_shield")
+        JumpPlatform(self.game, WIN_WIDTH-300, WIN_HEIGHT-460)
+        MovingJumpPlatform(self.game, WIN_WIDTH-180, WIN_HEIGHT-580, self.start_toggle_time, -1)
+        for i in range(1,3):
+            BackgroundBlocks(self.game, WIN_WIDTH-250, 70*i-20, "rope")
+        Checkpoint(self.game, WIN_WIDTH-390, 80, "2")
+        #BackgroundBlocks(self.game, WIN_WIDTH-250, 80, "cloud" )
     def start_runner_room(self):
         for i in range(1,16): # Nest nederste taket
             RoofPlatform(self.game, i*70, WIN_HEIGHT-360) #roof
         for i in range(1,5):
             BackgroundBlocks(self.game, 499, WIN_HEIGHT-50 - 40*i, "stairs")
         for i in range(1,8):
-            GroundPlatform(self.game, 500 + 70*i, WIN_HEIGHT-200, "half_ground")
+            GroundPlatform(self.game, 495 + 70*i, WIN_HEIGHT-200, "half_ground")
         for i in range(1,5):
             BackgroundBlocks(self.game, 1060, WIN_HEIGHT-50 - 40*i, "stairs")
         for i in range(1,3):
             for j in range(1,8):
                 WallPlatform(self.game, 510 + 69*j,WIN_HEIGHT-230+70*i, type="block")
-        Spike(self.game, 600, WIN_HEIGHT-270, 0,self.spikes_time )
-        UpsideDownSpike(self.game, 700, WIN_HEIGHT-290, 1, self.spikes_time)
-        UpsideDownSpike(self.game, 800, WIN_HEIGHT-290, 1, self.spikes_time)
-        Spike(self.game, 950, WIN_HEIGHT-270, 0, self.spikes_time)
+        Spike(self.game, 630, WIN_HEIGHT-270, 0,self.start_toggle_time)
+        Spike(self.game, 810, WIN_HEIGHT-290, 1, self.start_toggle_time)
+        #Spike(self.game, 800, WIN_HEIGHT-290, 1, self.spikes_time)
+        Spike(self.game, 1000, WIN_HEIGHT-270, 0, self.start_toggle_time)
         Checkpoint(self.game, 1150, WIN_HEIGHT-100, "1")
     def shoot_room(self):
         for i in range(1,16):
@@ -161,10 +152,8 @@ class GameGround:
         JumpPlatform(self.game, WIN_WIDTH//2-120, WIN_HEIGHT-450)
         JumpPlatform(self.game, WIN_WIDTH//2-350, WIN_HEIGHT-500)
         JumpPlatform(self.game, WIN_WIDTH//2-450, WIN_HEIGHT-600)
-        BackgroundBlocks(self.game, 75, 130, "door_mid")
-        BackgroundBlocks(self.game, 75, 130-70, "door_top")
-        Checkpoint(self.game, 340, WIN_HEIGHT//2+19, "3")
-
+        BackgroundBlocks(self.game, 75, 130, "door_open_mid")
+        BackgroundBlocks(self.game, 75, 130-70, "door_open_top")
         for i in range(1,8):
            WallPlatform(self.game, 495, 70*i-20, "portal")
         for i in range(1,3):
@@ -173,11 +162,11 @@ class GameGround:
             BackgroundBlocks(self.game, 250, 70*i-20, "rope")
     def create_enemies(self):
         while len(list(self.game.enemies)) < 1:
-            EnemyFly(self.game,  WIN_WIDTH-450,rd.randint(WIN_HEIGHT-600, WIN_HEIGHT-500))
+            EnemyFly(self.game,  WIN_WIDTH-450,rd.randint(WIN_HEIGHT-750, WIN_HEIGHT-450))
     
             #GroundPlatform(self.game, 350, 535, "wood_box")
             #GroundPlatform(self.game, 350, 530-70, "wood_box")
-    def create_bullets(self):
+    def update_create_bullets(self):
         if self.spawn_course_bullets:
             while len(list(self.game.course_bullets)) < 1:
                 print("bullet")

@@ -20,6 +20,7 @@ class Game:
         self.clock = pg.time.Clock()
         self.running = True
         self.completed = True
+        self.player_dead = False
         self.quiz_rect = pg.Rect(WIN_WIDTH//2-250, 80,500,300)
         self.load_game_data()
         self.game_ground = GameGround(self)
@@ -160,9 +161,6 @@ class Game:
         self.quit_button = Button(self.screen, "Avslutt", 200, 50, (780,800))
 
         self.screen.fill("dark grey")
-        self.draw_text(f"{self.title}", 100, "white",570,100)
-        pg.draw.rect(self.screen, "black", (0, 220, WIN_WIDTH, 20))
-        pg.draw.rect(self.screen, "black", (0, WIN_HEIGHT-180, WIN_WIDTH, 20))
 
         pg.draw.rect(self.screen, "light blue", (460, 290, 620, 400), 0, 5)
         self.play_button.draw()
@@ -178,6 +176,20 @@ class Game:
             self.draw_text(f"Best aim: 5/20            Ditt aim : 20/30", 30, "white", 460 + 100, 460)
             self.draw_text(f"Mest liv: 80/100          Ditt liv: 60/100", 30, "white", 460 + 100, 520)
             self.draw_text(f"Godt forsøk, prøv igjen :)", 30, "white", 460 + 150, 620)
+        if self.player_dead:
+            self.title = "Du døde"
+            if self.delayed_time > self.top_time_score:
+                self.top_time_score = self.delayed_time
+                with open(path.join(self.dir, TS_FILE), "w") as f:
+                    f.write(str(self.top_time_score))
+            self.draw_text("Statistikk", 50, "white", 460+220, 320)
+            self.draw_text(f"Beste tid: {self.top_time_score}          Din tid: {self.delayed_time}", 30, "white", 460 + 100, 400)
+            self.draw_text(f"Best aim: 5/20            Ditt aim : 20/30", 30, "white", 460 + 100, 460)
+            self.draw_text(f"Mest liv: 80/100          Ditt liv: 60/100", 30, "white", 460 + 100, 520)
+            self.draw_text(f"Godt forsøk, prøv igjen :)", 30, "white", 460 + 150, 620)
+        self.draw_text(f"{self.title}", 120, "white",570,80)
+        pg.draw.rect(self.screen, "black", (0, 220, WIN_WIDTH, 20))
+        pg.draw.rect(self.screen, "black", (0, WIN_HEIGHT-180, WIN_WIDTH, 20))
         pg.display.flip()
         self.wait_for_key()
     def wait_for_key(self):

@@ -34,10 +34,6 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,0)
         self.health = 100
         self.max_health = 100
-    def rotate_aim_gun(self):
-        pass
-
-            #angle = math.atan2()
 
 
     def update(self):
@@ -47,6 +43,9 @@ class Player(pg.sprite.Sprite):
         self.move()
         self.hit_lava()
         self.update_gun_animation()
+        #self.spike_colission()
+        self.ladder_colission()
+        
         #self.hill_run()
         self.check_alive()
         if self.vel.y > 0:
@@ -85,18 +84,6 @@ class Player(pg.sprite.Sprite):
             
         ]
 
-    def hill_run(self):
-        hits = pg.sprite.collide_mask()
-        for hit in hits:
-            if hit.type == "half_up_left":
-                if self.rect.x >= hit.rect.centerx-30:
-                    if self.walking:
-                        print("move upwards")
-                        move_up = 2
-                        self.rect.y -= move_up
-                        self.pos.y -= move_up  # Also update the position vector if necessary
-                       # self.rect.x -= 1  # Adjust x to stay on the slope
-            
     def jump(self): 
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.jump_platforms, False) or pg.sprite.spritecollide(self, self.game.ground_platforms, False)
@@ -109,9 +96,30 @@ class Player(pg.sprite.Sprite):
         enemies = pg.sprite.spritecollide(self, self.game.enemies, True)
         if enemies:
             self.health -= 20
+    def wall_colission_x(self):
+        wall_hits = pg.sprite.spritecollide(self, self.game.walls, False)
+        for tile in wall_hits:
+            if self.vel.x > 0:
+                self.pos.x = tile.rect.left - self.rect.w+30
+                self.rect.x = self.pos.x
+            elif self.vel.x < 0:
+                self.pos.x = tile.rect.right + self.rect.w-30
+                self.rect.x = self.pos.x
+    def ladder_colission(self):
+        hits = pg.sprite.spritecollide(self, self.game.background_sprites, False)
+        if not hits:
+            self.on_stairs = False
+        else:
+            for hit in hits:
+                if hit.type == "stairs" or hit.type=="rope":
+                    keys = pg.key.get_pressed()
+                    self.on_stairs = True
+                    if keys[pg.K_w]:
+                        self.vel.y -= 0.5
     def check_alive(self):
         if self.health < 10:
             self.game.playing = False
+            self.game.player_dead = True
     def hit_lava(self):
         hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         if hit:
@@ -145,7 +153,6 @@ class Player(pg.sprite.Sprite):
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
-
         keys = pg.key.get_pressed()
         if keys[pg.K_s]:
             self.duck("right")

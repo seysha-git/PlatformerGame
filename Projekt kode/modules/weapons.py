@@ -53,8 +53,8 @@ class CourseBullet(Bullet):
         self.image = self.game.spritesheet_items.get_image(432,432,70,70)
         self.image.set_colorkey("black")
         self.rect = self.image.get_rect()
-        self.rect.x = WIN_WIDTH-250
-        self.rect.y = 60+70
+        self.rect.x = rd.randint(WIN_WIDTH-320, WIN_WIDTH-150)
+        self.rect.y = 0
         self.speed = rd.randint(1,4)
     def move(self):
         self.rect.y += 5
@@ -66,6 +66,11 @@ class CourseBullet(Bullet):
     def check_colission(self):
         hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         hit_player = pg.sprite.collide_mask(self, self.game.game_ground.player)
+        hits_background = pg.sprite.spritecollide(self, self.game.background_sprites, False)
+        for hit in hits_background:
+            if hit.type == "umbrella_shield":
+                if self.rect.y + self.rect.h > hit.rect.y + hit.rect.h + 100:
+                    self.kill()
         #hit_jump_platform = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
         if hit:
             self.kill()
