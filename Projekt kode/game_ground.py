@@ -8,7 +8,7 @@ from modules.weapons import CourseBullet, PlayerBullet
 
 
 class GameGround:
-    def __init__(self, game):
+    def __init__(self, game:object):
         self.start_toggle_time = 0
         self.game = game
         self.ground_length = 23
@@ -44,7 +44,7 @@ class GameGround:
         self.start_runner_room()
         self.jump_gun_room()
         self.shoot_room()
-        self.player = Player(self.game, 200,WIN_HEIGHT-100)
+        self.player = Player(self.game, 200,100)
     def player_key_pickup(self):
         hits = pg.sprite.spritecollide(self.player, self.game.keys, False)
         if hits:
@@ -60,8 +60,7 @@ class GameGround:
         hits = pg.sprite.spritecollide(self.player, self.game.background_sprites, False)
         if hits:
             for hit in hits:
-                if hit.type == "door_mid":
-                    print("hit")
+                if hit.type == "door_open_mid":
                     self.game.playing = False
                     self.game.completed = True
     def player_wall_collision_x(self):
@@ -98,7 +97,6 @@ class GameGround:
         if hits:
             if hits[0].type == "1":
                 self.spawn_course_bullets = True
-                print("hit")
             if hits[0].type == "2":
                 self.player.gun_active = True
             elif hits[0].type == "3":
@@ -108,7 +106,6 @@ class GameGround:
         if self.player.keys >= 3:
             for wall in self.game.walls:
                 if wall.type == "portal":
-                    print("move down")
                     if wall.rect.y > 50:
                         wall.rect.y -= 1                   
     def jump_gun_room(self):
@@ -169,5 +166,4 @@ class GameGround:
     def update_create_bullets(self):
         if self.spawn_course_bullets:
             while len(list(self.game.course_bullets)) < 1:
-                print("bullet")
                 CourseBullet(self.game)

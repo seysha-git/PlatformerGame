@@ -7,6 +7,7 @@ from os import path
 from game_ground import GameGround
 pg.font.init()
 from utils import *
+import pandas as pd
 
 
 
@@ -16,15 +17,14 @@ class Game:
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         self.font_name = pg.font.match_font(FONT_NAME)
-        self.quiz_font = pg.font.Font("freesansbold.ttf", 20)
         self.clock = pg.time.Clock()
         self.running = True
-        self.completed = True
+        self.completed = False
         self.player_dead = False
-        self.quiz_rect = pg.Rect(WIN_WIDTH//2-250, 80,500,300)
         self.load_game_data()
         self.game_ground = GameGround(self)
-        self.time = 0
+        self.time_played = 0
+        self.last_game_ended = 0
     def level_guide(self):
         self.scrolling_text_font = pg.font.Font("freesansbold.ttf", 20)
         self.levels_messages = [ 
@@ -62,7 +62,6 @@ class Game:
         else:
             return
     def new(self):
-        
         self.all_sprites = pg.sprite.LayeredUpdates()
 
         self.ground_platforms = pg.sprite.Group()
@@ -85,18 +84,19 @@ class Game:
         self.enemies = pg.sprite.Group()
 
         self.game_ground.new()
-
-        self.delayed_time = self.time
-
         pg.mixer.music.load(path.join(self.snd_dir, "part1.ogg"))
         self.run()
     def load_game_data(self):
         self.dir = path.dirname(__file__)
-        with open(path.join(self.dir, TS_FILE),'w') as f:
-            try:
-                self.top_time_score = int(f.read())
-            except:
-                self.top_time_score = 0
+        try:
+            self.game_data = pd.read_csv("game_data.csv")
+        except FileNotFoundError:
+            self.game_data = pd.DataFrame({
+                "best_time": [0],  
+                "best_aim": [0],
+                "best_health": [0],
+            })
+            self.game_data.to_csv("game_data.csv")
 
         img_dir = path.join(self.dir, "images")
         self.spritesheet_char = Spritesheet(path.join(img_dir, SPRITESHEET_CHAR))
@@ -109,6 +109,10 @@ class Game:
         self.jump_sound = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav"))
         self.gems_sound = pg.mixer.Sound(path.join(self.snd_dir, "boost.wav"))
         self.level_guide()
+
+    def update_game_data(self, column_name, new_value):
+        self.game_data[column_name] = new_value
+        self.game_data.to_csv("game_data.csv", index=True)
     def run(self):
         #pg.mixer.music.play(loops=-1)
         self.playing = True
@@ -123,7 +127,12 @@ class Game:
     def update(self):
         self.game_ground.update()
         self.all_sprites.update()
-        self.delayed_time = (pg.time.get_ticks() - self.time) // 1000
+        self.update_time()
+    def update_time(self):
+        self.now = pg.time.get_ticks()
+        self.delayed_time = (self.now - self.last_game_ended)//1000
+    def reset_timer(self):
+        self.last_game_ended = self.now
     def draw(self):
         self.screen.fill((50, 168, 82))
         self.all_sprites.draw(self.screen)
@@ -133,14 +142,17 @@ class Game:
         pg.display.update()
     def show_start_screen(self):
         self.screen.fill("light green")
-        self.draw_text("Mitt Platform spill", 100, "white",400,200)
-        self.draw_text("Kontrollene", 50, "white", 590, 320)
-        self.w = Button(self.screen, "w", 120, 70, (630,400))
-        self.a = Button(self.screen, "a", 120, 70, (630,500))
-        self.s = Button(self.screen, "s", 120, 70, (480,500))
-        self.d = Button(self.screen, "d", 120, 70, (780,500))
+        pg.draw.rect(self.screen, "black", (0, 220, WIN_WIDTH, 20))
+        pg.draw.rect(self.screen, "black", (0, WIN_HEIGHT-180, WIN_WIDTH, 20))
+        self.draw_text("Mitt Platform spill", 100, "white",450,100)
+        self.draw_text(f"Beste tid: {45}", 60, "white", 600, 280 )
+        self.draw_text("Kontrollene", 50, "white", 640, 400)
+        self.w = Button(self.screen, "w", 120, 70, (660,500))
+        self.a = Button(self.screen, "a", 120, 70, (660,600))
+        self.s = Button(self.screen, "s", 120, 70, (520,600))
+        self.d = Button(self.screen, "d", 120, 70, (820,600))
 
-        self.play_button = Button(self.screen, "Spill nå", 200, 60, (590,630), "green")
+        self.play_button = Button(self.screen, "Spill nå", 200, 60, (590,800), "green")
         self.play_button.draw()
         self.w.draw()
         self.a.draw()
@@ -153,45 +165,43 @@ class Game:
 
         pg.display.flip()
         self.wait_for_key()
-    def show_go_screen(self): 
+    def show_over_screen(self): 
         if self.playing:
            return
-        self.title = ""
         self.play_button = Button(self.screen, "Spill igjen", 200, 50, (520,800))
         self.quit_button = Button(self.screen, "Avslutt", 200, 50, (780,800))
 
         self.screen.fill("dark grey")
-
         pg.draw.rect(self.screen, "light blue", (460, 290, 620, 400), 0, 5)
         self.play_button.draw()
         self.quit_button.draw()
         if self.completed:
             self.title = "Bra Jobba!"
-            if self.delayed_time > self.top_time_score:
-                self.top_time_score = self.delayed_time
-                with open(path.join(self.dir, TS_FILE), "w") as f:
-                    f.write(str(self.top_time_score))
+            hit_ratio = self.game_ground.player.get_hit_ratio()
+            health = self.game_ground.player.health
+            print(self.game_data.columns)
+            if self.delayed_time < self.game_data["best_time"].iloc[0] or self.game_data["best_time"].iloc[0] == 0:
+                self.update_game_data("best_time", [self.delayed_time])
+            if health > self.game_data["best_health"].iloc[0]:
+               self.update_game_data("best_health", [health])
+            if hit_ratio > self.game_data["best_aim"].iloc[0]:
+                self.update_game_data("best_aim", hit_ratio)
             self.draw_text("Statistikk", 50, "white", 460+220, 320)
-            self.draw_text(f"Beste tid: {self.top_time_score}          Din tid: {self.delayed_time}", 30, "white", 460 + 100, 400)
-            self.draw_text(f"Best aim: 5/20            Ditt aim : 20/30", 30, "white", 460 + 100, 460)
-            self.draw_text(f"Mest liv: 80/100          Ditt liv: 60/100", 30, "white", 460 + 100, 520)
+            self.draw_text(f"Beste tid: {self.game_data['best_time'].iloc[0]}          Din tid: {self.delayed_time}", 30, "white", 460 + 100, 400)
+            self.draw_text(f"Best aim:  {hit_ratio}%          Ditt aim : {hit_ratio}%", 30, "white", 460 + 100, 460)
+            self.draw_text(f"Mest liv: {self.game_data['best_health'].iloc[0]}/100          Ditt liv: {health}/100", 30, "white", 460 + 100, 520)
             self.draw_text(f"Godt forsøk, prøv igjen :)", 30, "white", 460 + 150, 620)
-        if self.player_dead:
+            self.reset_timer()
+        if self.player_dead:    
             self.title = "Du døde"
-            if self.delayed_time > self.top_time_score:
-                self.top_time_score = self.delayed_time
-                with open(path.join(self.dir, TS_FILE), "w") as f:
-                    f.write(str(self.top_time_score))
-            self.draw_text("Statistikk", 50, "white", 460+220, 320)
-            self.draw_text(f"Beste tid: {self.top_time_score}          Din tid: {self.delayed_time}", 30, "white", 460 + 100, 400)
-            self.draw_text(f"Best aim: 5/20            Ditt aim : 20/30", 30, "white", 460 + 100, 460)
-            self.draw_text(f"Mest liv: 80/100          Ditt liv: 60/100", 30, "white", 460 + 100, 520)
             self.draw_text(f"Godt forsøk, prøv igjen :)", 30, "white", 460 + 150, 620)
         self.draw_text(f"{self.title}", 120, "white",570,80)
         pg.draw.rect(self.screen, "black", (0, 220, WIN_WIDTH, 20))
         pg.draw.rect(self.screen, "black", (0, WIN_HEIGHT-180, WIN_WIDTH, 20))
         pg.display.flip()
         self.wait_for_key()
+    def end_game_data(self):
+        pass
     def wait_for_key(self):
         waiting = True
         while waiting:
@@ -204,7 +214,8 @@ class Game:
                     sys.exit()
             if self.play_button.pressed:
                 waiting = False
-    def draw_text(self, text, size, color, x, y):
+                self.completed = False
+    def draw_text(self, text:str, size:tuple, color:tuple, x:int, y:int):
         font = pg.font.Font(self.font_name, size)
         text_surface = font.render(text, 1, color)
         text_rect = text_surface.get_rect()

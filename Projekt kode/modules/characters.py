@@ -10,7 +10,7 @@ import random as rd
 vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, game, start_pos_x, start_pos_y, targetx=0, targety=0):
+    def __init__(self, game:object, start_pos_x:int, start_pos_y:int):
         self._layer = PLAYER_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -34,6 +34,8 @@ class Player(pg.sprite.Sprite):
         self.acc = vec(0,0)
         self.health = 100
         self.max_health = 100
+        self.shots = 0
+        self.hits = 0
 
 
     def update(self):
@@ -125,7 +127,7 @@ class Player(pg.sprite.Sprite):
         if hit:
             for i in hit:
                 if i.type == "lava":
-                    print("dead")
+                    pass
     def ground_plat_collission(self):
         hits = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
         if hits:
@@ -148,8 +150,7 @@ class Player(pg.sprite.Sprite):
                     if self.pos.y < lowest.rect.centery:
                         self.pos.y = lowest.rect.top
                         self.vel.y = 0
-                        self.jumping = False
-                     
+                        self.jumping = False                     
     def move(self):
         self.acc = vec(0,MAIN_GRAVITY)
         self.vel.x = 0
@@ -212,11 +213,17 @@ class Player(pg.sprite.Sprite):
     def draw(self):
          self.draw_healthbar() 
          self.draw_gun()
-    def shoot(self, x,y):
+    def get_hit_ratio(self):
+         if self.hits == 0:
+             return 0
+         return round((self.hits/self.shots), 2)*100
+    def shoot(self, x:int,y:int):
+        self.shots += 1
         if self.gun_index == 0:
             PlayerBullet(self.game, self.rect.right, self.rect.centery, 6, x,y)
         if self.gun_index == 1:
              PlayerBullet(self.game, self.rect.left, self.rect.centery, 6, x,y)
+        
     def draw_gun(self):
         x,y = pg.mouse.get_pos()
         angle = math.degrees(math.atan2(y - self.rect.centery, x - self.rect.centerx))
@@ -265,11 +272,8 @@ class Princess(pg.sprite.Sprite):
 
         
 
-
-
-
 class EnemyFly(pg.sprite.Sprite):
-    def __init__(self, game, x,y):
+    def __init__(self, game:object, x:int,y:int):
         self._layer = ENEMIES_LAYER
         self.groups = game.all_sprites, game.enemies
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -307,6 +311,7 @@ class EnemyFly(pg.sprite.Sprite):
     def bullet_colission(self):
         hit = pg.sprite.spritecollide(self, self.game.player_bullets, True)
         if hit:
+            self.game.game_ground.player.hits += 1
             self.kill()
             if rd.randrange(2) == 1:
                 Key(self.game, self.rect.x, self.rect.y)
