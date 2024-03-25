@@ -1,12 +1,11 @@
 import pygame as pg
 from settings import *
-import sys
 import math
 from modules.weapons import PlayerBullet
 from modules.platforms import MovingJumpPlatform
-#from modules.weapons import Bullet
 from modules.items import Key
 import random as rd
+
 vec = pg.math.Vector2
 
 class Player(pg.sprite.Sprite):
@@ -15,44 +14,30 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
+
         self.walking = False 
-        self.ducking = False
         self.jumping = False 
         self.on_stairs = False
         self.not_hit_portal = True
         self.on_moving_plat = False
         self.gun_active = False
+
         self.current_frame = 0
         self.last_update = 0
-        self.load_images()
-        self.image = self.standing_frames[0]
         self.keys = 0
-        self.rect = self.image.get_rect()
-        self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
-        self.pos = vec(start_pos_x, start_pos_y) #WIN_WIDTH+400
-        self.vel = vec(0,0)
-        self.acc = vec(0,0)
         self.health = 100
         self.max_health = 100
         self.shots = 0
         self.hits = 0
 
-
-    def update(self):
-        #player_portal_collide = self.collsion_rect.colliderect(portal.rect for portal in self.game.portals) 
-        self.animate()
-        self.enemies_collision()
-        self.move()
-        self.hit_lava()
-        self.update_gun_animation()
-        #self.spike_colission()
-        self.ladder_colission()
+        self.load_images()
+        self.image = self.standing_frames[0]
         
-        #self.hill_run()
-        self.check_alive()
-        if self.vel.y > 0:
-            self.ground_plat_collission()
-            self.jump_plat_colission()
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIN_WIDTH//2, WIN_HEIGHT-MAIN_CHAR_HEIGHT/2)
+        self.pos = vec(start_pos_x, start_pos_y)
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
     def load_images(self):
         self.gun_index = 0
         self.gun_frames = [
@@ -83,9 +68,30 @@ class Player(pg.sprite.Sprite):
         self.jump_frame = [
             self.game.spritesheet_char.get_image(438,93,67,94),
             pg.transform.flip(self.game.spritesheet_char.get_image(438,93,67,94), True, False)
-            
         ]
-
+    def update(self):
+        self.animate()
+        self.move()
+        self.update_gun_animation()
+        """
+        #if self.vel.y > 0:
+         #  self.ground_plat_collission()
+          # self.jump_plat_colission()
+        """
+        
+    def move(self):
+        self.acc = vec(0,MAIN_GRAVITY)
+        self.vel.x = 0
+        keys = pg.key.get_pressed()
+        if keys[pg.K_s]:
+            self.duck()
+        if keys[pg.K_d]:
+            self.acc.x = MAIN_ACC
+        if keys[pg.K_a]:
+            self.acc.x = -MAIN_ACC
+        self.vel += self.acc
+        self.pos += self.vel + 0.5*self.acc
+        self.rect.midbottom = self.pos
     def jump(self): 
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.jump_platforms, False) or pg.sprite.spritecollide(self, self.game.ground_platforms, False)
@@ -94,85 +100,10 @@ class Player(pg.sprite.Sprite):
             self.vel.y = -MAIN_JUMP_VEL
             self.jumping = True
             #self.game.jump_sound.play()
-    def enemies_collision(self):
-        enemies = pg.sprite.spritecollide(self, self.game.enemies, True)
-        if enemies:
-            self.health -= 20
-    def wall_colission_x(self):
-        wall_hits = pg.sprite.spritecollide(self, self.game.walls, False)
-        for tile in wall_hits:
-            if self.vel.x > 0:
-                self.pos.x = tile.rect.left - self.rect.w+30
-                self.rect.x = self.pos.x
-            elif self.vel.x < 0:
-                self.pos.x = tile.rect.right + self.rect.w-30
-                self.rect.x = self.pos.x
-    def ladder_colission(self):
-        hits = pg.sprite.spritecollide(self, self.game.background_sprites, False)
-        if not hits:
-            self.on_stairs = False
-        else:
-            for hit in hits:
-                if hit.type == "stairs" or hit.type=="rope":
-                    keys = pg.key.get_pressed()
-                    self.on_stairs = True
-                    if keys[pg.K_w]:
-                        self.vel.y -= 0.5
-    def check_alive(self):
-        if self.health < 10:
-            self.game.playing = False
-            self.game.player_dead = True
-    def hit_lava(self):
-        hit = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
-        if hit:
-            for i in hit:
-                if i.type == "lava":
-                    pass
-    def ground_plat_collission(self):
-        hits = pg.sprite.spritecollide(self, self.game.ground_platforms, False)
-        if hits:
-            if self.pos.y < hits[0].rect.bottom:
-                self.pos.y = hits[0].rect.top
-                self.vel.y = 0
-                self.jumping = False
-    def jump_plat_colission(self):
-        jump_plat_hit = pg.sprite.spritecollide(self, self.game.jump_platforms, False)
-        if jump_plat_hit:
-            lowest = jump_plat_hit[0]
-            for hit in jump_plat_hit:
-                if hit.rect.bottom > lowest.rect.bottom:
-                    lowest = jump_plat_hit[0]
-                if isinstance(lowest,MovingJumpPlatform):
-                    self.on_moving_plat = True
-                    self.pos.x=  lowest.rect.centerx
-            if self.pos.x < lowest.rect.right + 10 \
-                and self.pos.x > lowest.rect.left - 10:
-                    if self.pos.y < lowest.rect.centery:
-                        self.pos.y = lowest.rect.top
-                        self.vel.y = 0
-                        self.jumping = False                     
-    def move(self):
-        self.acc = vec(0,MAIN_GRAVITY)
-        self.vel.x = 0
-        keys = pg.key.get_pressed()
-        if keys[pg.K_s]:
-            self.duck("right")
-            self.ducking = True
-        if keys[pg.K_d]:
-            self.acc.x = MAIN_ACC
-        if keys[pg.K_a]:
-            self.acc.x = -MAIN_ACC
-        #self.acc.x += self.vel.x# * -MAIN_FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5*self.acc
-        self.rect.midbottom = self.pos
-    def update_gun_animation(self):
-        x,y = pg.mouse.get_pos()
-        if x > self.rect.x:
-            self.gun_index = 0
-        if x < self.rect.x:
-            self.gun_index = 1
-        
+    def duck(self):
+        self.pos.y += 20
+        self.image = self.duck_frame[0]
+        self.image.set_colorkey("black")
     def animate(self):
         now = pg.time.get_ticks()
         if self.jumping:
@@ -197,8 +128,6 @@ class Player(pg.sprite.Sprite):
                 else:
                     self.gun_image = self.gun_frames[1]
                     self.image = self.walk_frames_l[self.current_frame]
-                    #if self.ducking:
-                     #   self.duck("left")
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         if not self.jumping and not self.walking:
@@ -210,20 +139,25 @@ class Player(pg.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         self.mask = pg.mask.from_surface(self.image)
-    def draw(self):
-         self.draw_healthbar() 
-         self.draw_gun()
+    def update_gun_animation(self):
+        x,y = pg.mouse.get_pos()
+        if x > self.rect.x:
+            self.gun_index = 0
+        if x < self.rect.x:
+            self.gun_index = 1 
     def get_hit_ratio(self):
          if self.hits == 0:
              return 0
-         return round((self.hits/self.shots), 2)*100
+         return round((self.hits/self.shots), 2)*100                   
+    def draw(self):
+         self.draw_healthbar() 
+         self.draw_gun()
     def shoot(self, x:int,y:int):
         self.shots += 1
         if self.gun_index == 0:
             PlayerBullet(self.game, self.rect.right, self.rect.centery, 6, x,y)
         if self.gun_index == 1:
-             PlayerBullet(self.game, self.rect.left, self.rect.centery, 6, x,y)
-        
+             PlayerBullet(self.game, self.rect.left, self.rect.centery, 6, x,y)      
     def draw_gun(self):
         x,y = pg.mouse.get_pos()
         angle = math.degrees(math.atan2(y - self.rect.centery, x - self.rect.centerx))
@@ -239,22 +173,9 @@ class Player(pg.sprite.Sprite):
             self.gun_image = self.gun_frames[self.gun_index]
             rotated_image = pg.transform.rotate(self.gun_image, -angle) 
             self.game.screen.blit(rotated_image, (self.rect.right-50, self.rect.centery-50))
-        
     def draw_healthbar(self):
         pg.draw.rect(self.game.screen, (255, 0,0), (self.rect.x, self.rect.y - 20, self.rect.width, 10 ))
         pg.draw.rect(self.game.screen, (00, 255,0), (self.rect.x, self.rect.y - 20, self.rect.width * (1-((self.max_health - self.health))/self.max_health), 10 ))
-    def duck(self, dir="right"):
-        self.pos.y += 20
-        if dir == "right":
-            self.image = self.duck_frame[0]
-            self.image.set_colorkey("black")
-        elif dir == "left":
-            self.image = self.duck_frame[1]
-            self.image.set_colorkey("black")
-        else:
-            self.image = self.duck_frame[0]
-            self.image.set_colorkey("black")
-
 
 
 
